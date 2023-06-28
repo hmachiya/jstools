@@ -1,0 +1,183 @@
+<html>
+<head>
+	<title>Hypocycloid</title>
+	<meta charset="utf-8" />
+	<script>
+		var w=1024;
+		var h=1024;
+		function exec(){
+			var obj = document.getElementById("cnvs");
+			var cnv = obj.getContext("2d");
+			var imgdt = cnv.getImageData(0,0,1024,1024);
+			var t = document.getElementById("tstart").value-0;
+			var tstep = document.getElementById("tstep").value-0;
+			var tend = document.getElementById("tend").value-0;
+			var a = document.getElementById("rad").value-0;
+			var alpha = document.getElementById("alpha").value-0;
+			if(tstep<0.0001){
+				progress=true;
+			}else{
+				progress=false;
+			}
+			t=t*Math.PI;
+			tstep=tstep*Math.PI;
+			tend=tend*Math.PI;
+			a=1/a;
+			flag=false;
+			nstep = (tend-t)/tstep;
+			now=0;
+
+			for(var x=0;x<4*w*h;x++){
+				imgdt.data[x]=255;
+			}
+			var initx = (1-a)+alpha*a;
+			var inity = 0;
+			//alert(nstep);
+			while(t<tend){
+				var x = (1-a)*Math.cos(t)+alpha*a*Math.cos((-1.0/a/alpha+1)*t);
+				var y = (1-a)*Math.sin(t)+alpha*a*Math.sin((-1.0/a/alpha+1)*t);
+				if(Math.round(x*1000)==initx && Math.round(y*1000)==inity){
+					if(flag){break;}
+				}else if(!flag){
+					flag=true;
+				}
+				//var x=Math.cos(t);
+				//var y=Math.sin(t);
+				var color = hsv2rgb(Math.floor(t*180.0/Math.PI)%360,255,255);
+				putpx_f(imgdt.data,512*(x+1),512*(y+1),color[0],color[1],color[2]);
+				t+=tstep;
+				now++;
+			}
+			//(t/Math.PI);
+			if(t<tend){
+				document.getElementById("status").innerHTML="automatically stopped because of repeating pattern. t="+t/Math.PI+"π";
+			}else{
+				document.getElementById("status").innerHTML="finished";
+			}
+			cnv.putImageData(imgdt,0,0);
+		}
+		function putpx_f(data,x,y,r,g,b){
+			putpx(data,Math.round(x),Math.round(y),r,g,b,255);
+		}
+		function putpx(data,x,y,r,g,b,a){
+			data[(y*w+x)*4+0]=r;
+			data[(y*w+x)*4+1]=g;
+			data[(y*w+x)*4+2]=b;
+			data[(y*w+x)*4+3]=a;
+		}
+		function hsv2rgb(h,s,v){
+			hi = Math.floor(h/60.0)%6;
+			f = (h/60.0)-Math.floor(h/60.0);
+			p = Math.round(v * (1.0 - s/255.0));
+			q = Math.round(v * (1.0 - s/255.0*f));
+			t = Math.round(v * (1.0 - s/255.0*(1-f)));
+			if(hi==0) return [v,t,p];
+			if(hi==1) return [q,v,p];
+			if(hi==2) return [p,v,t];
+			if(hi==3) return [p,q,v];
+			if(hi==4) return [t,p,v];
+			if(hi==5) return [v,p,q];
+		}
+	</script>
+	<style>
+		body{
+			margin:0px;
+
+		}
+		h1{
+			margin:0px;
+			padding:10px 20px;
+			background:#339933;
+			color:white;
+			font-family: Avenir-Black, Helvetica;
+		}
+		h2{
+			font-family: Avenir;
+			margin:20px 30px;
+			margin-top:30px;	
+		}
+		hr{
+			border:none;
+			border-bottom:2px solid #338033;
+			margin:5px 10px;
+		}
+		div.cont{
+			margin:10px 50px;
+		}
+		p span.vector{
+			font-weight:bold;
+		}
+		p.formula{
+			font-family:Consolas;
+			margin-left:10px;
+		}
+		input{
+			border:3px solid #ddd;
+			border-radius:4px;
+			background:white;
+			padding:5px 10px;
+			margin:5px;
+			font-family:Helvetica;
+			font-size:12pt;
+		}
+		input:focus{
+			outline:none;
+			border:3px solid #66FF33;
+		}
+		input.disabled{
+			background:#eee;
+			color:#777;
+		}
+		div#footer{
+			margin:10px 20px;
+			text-align:center;
+			font-family:Avenir;
+			font-size:12pt;
+		}
+	</style>
+</head>
+<body><!--
+	<h1>HTML5 Hypocycloid Generator</h1>
+	<h2>Background</h2>
+	<div class="cont">
+		<img align="left" src="imgs/fig1.png" />
+		<p><span class="vector">Hypocloid<span> is a kind of a cycloid. The curve is a trace of a fixed point on a circle that turns around inside of another circle.</p>	
+		<p>Position of the center of the smaller circle is given by using complex number as:</p>
+		<p class="formula"><span class="vector">r<sub>0</sub></span>=(a-b)exp(iθ)</p>
+		<p>And the position of the fixed point on the smaller circie is given as:</p>
+		<p class="formula"><span class="vector">r<sub>1</sub></span>=<span class="vector">r<sub>0</sub></span>+bexp(iφ)</p>
+		<p>Relationship berween θ and φ is:</p>
+		<p class="formula">aθ=bφ</p>
+		<p>So the position of the fixed point is shown as a function of θ:</p>
+		<p class="formula"><span class="vector">r<sub>1</sub></span>=(a-b)exp(iθ)+bexp(i(1-a/b)θ)</p>
+		<br clear="left" />
+	</div>
+	<hr />
+	<h2>Plot Using HTML5 Canvas Object</h2>
+	-->
+		<div class="cont">
+		<!--<p>Following form determins the size of the circles, and parameter θ to plot. </p>
+		<p>Results will be shown in a 512x512px image below. For the size of 512x512px, 1e-4 is sufficient for Δθ. To get more accuracy, decrease Δθ.</p>
+		<p>Range of θ determins how many times the smaller circle goes around the circle. For some b/a parameter (e.g. 7/5), plotting automatically stops when the point returns to the initial position of (x,y)=(1,0), even before θ reaches the end of assigned θ range.</p>
+		<p>*b/a must be greater than 1</p>
+		<p>*Try b/a = π, e, γ, sqrt(π), n/m</p>-->
+		<table>
+			<tr><th>Parameter<br />b/a</th><td><input id="rad" value="3.14" /></td><td>Outer Radius b, Inner Radius a</td></tr>
+			<tr><th>α</th><td><input id="alpha" value="0.9" /></td><td></td></tr>
+			<tr><th>Range of θ</th><td><input class="disabled" id="tstart" size="3" disabled="disabled" value="0" />π~<input size="3" id="tend" value="100" />π</td><td></td></tr>
+			<tr><th>Step Δθ</th><td><input id="tstep" value="0.0001" />π</td><td></td></tr>
+		</table>
+		<button onclick="exec()">Run</button><br />
+		<div id="status"></div>
+		<canvas id="cnvs" width="1024" height="1024"></canvas>
+	</div>
+	<!--
+	<h2>Reference</h2>
+	<div class="cont">
+	<p>[1] <a href="http://mathworld.wolfram.com/Hypocycloid.html" target="_blank">http://mathworld.wolfram.com/Hypocycloid.html</a></p>
+	</div>
+	<hr />
+	<div id="footer">(C)2014- mchhdnr All Rights Reserved</div>
+	-->
+</body>
+</html>
