@@ -12,7 +12,7 @@
                     this.n=n;
                     this.history=new Array();
                     this.history.push(this.n);
-                    this.isCompleted=false;
+                    this.isCompleted=(this.n==1);
                 }
                 iterate(){
                     if(this.isCompleted){
@@ -50,13 +50,10 @@
                     return restr;
                 }
             }
-            function collatzTest(n){
-                var collatzIters=[];
-
-            }
             function doSingleTest(){
-                var n = parseInt(document.getElementById("singleN").value);
-                var restr="";
+                document.getElementById("singleTest").style.display="block";
+                let n = parseInt(document.getElementById("singleN").value);
+                let restr="";
                 if(isNaN(n)){
                     document.getElementById("singleTestResult").innerHTML="数値を入力してください";
                     document.getElementById("singleTestHistory").innerHTML="";
@@ -68,7 +65,7 @@
                     return;
                 }
                 document.getElementById("singleN").value=n.toString();
-                var c=new Collatz(n);
+                let c=new Collatz(n);
                 c.loop(1024);
                 if(c.isCompleted){
                     restr=(c.history.length-1)+"回で1になりました。";
@@ -77,7 +74,6 @@
                 }
                 document.getElementById("singleTestResult").innerHTML=restr;
                 document.getElementById("singleTestHistory").innerHTML=c.toString();
-                document.getElementById("singleTest").style.display="block";
             }
         </script>
         <style>
