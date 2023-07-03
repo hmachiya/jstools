@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <title>エラトステネスのふるい</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;700&display=swap" rel="stylesheet">
+        <script>
+            let c=null;
+            let timer=null;
+            function max(x,y){
+                return (x>y)? x:y;
+            }
+            function min(x,y){
+                return (x<y)? x:y;
+            }
+            class sCanvas{
+                constructor(nx,ny){
+                    let ix, iy, bi;
+                    this.svg = document.getElementById("cnv");
+                    this.boxw = 20;
+                    this.boxh = 20;
+                    this.vpw  = this.svg.getAttribute("width") - 0;
+                    this.vph  = this.svg.getAttribute("height") - 0;
+                    this.nx   = nx;
+                    this.ny   = ny;
+                    this.padx = 30;
+                    this.pady = 30;
+                    this.boxes= new Array();
+                    this.colortable=["#eee", "#ff0080", "#ff0080", "#0029cf", "#fff"]; 
+                    //0:not specified, 1: active number, 2: active prime, 3: fixed prime, 4: eliminated multiples
+                    let bbx = document.createElementNS('http://www.w3.org/2000/svg','rect');
+                    bbx.setAttribute('x', this.padx-2);
+                    bbx.setAttribute('y', this.pady-2);
+                    bbx.setAttribute('width', this.boxw*this.nx+4);
+                    bbx.setAttribute('height', this.boxh*this.ny+4);
+                    bbx.setAttribute('fill', '#fff');
+                    bbx.setAttribute('stroke', '#333');
+                    bbx.setAttribute('stroke-width', 1);
+                    this.svg.appendChild(bbx);
+                    for(ix=5;ix<=this.nx;ix+=5){
+                        let x = this.padx + this.boxw * (ix-1);
+                        let y = this.pady - 4;
+                        const ti = document.createElementNS('http://www.w3.org/2000/svg','text');
+                        ti.setAttribute('x',x);
+                        ti.setAttribute('y',y);
+                        ti.setAttribute('font-size',10)
+                        const tc = document.createTextNode(ix.toString());
+                        ti.appendChild(tc);
+                        this.svg.appendChild(ti);
+                    }
+                    for(ix=5;ix<=this.ny;ix+=4){
+                        let x = 1;
+                        let y = this.pady + this.boxh * ix;
+                        const ti = document.createElementNS('http://www.w3.org/2000/svg','text');
+                        ti.setAttribute('x',x);
+                        ti.setAttribute('y',y);
+                        ti.setAttribute('font-size',10)
+                        const tc = document.createTextNode((this.nx*(ix-1)+1).toString());
+                        ti.appendChild(tc);
+                        this.svg.appendChild(ti);
+                    }
+                    for(iy=0;iy<this.ny;iy++){
+                        for(ix=0;ix<this.nx;ix++){
+                            bi = document.createElementNS('http://www.w3.org/2000/svg','rect');
+                            bi.setAttribute('x', this.padx+ix*this.boxw);
+                            bi.setAttribute('y', this.pady+iy*this.boxh);
+                            bi.setAttribute('width', this.boxw);
+                            bi.setAttribute('height', this.boxh);
+                            bi.setAttribute('fill', '#eee');
+                            bi.setAttribute('stroke','#ccc');
+                            bi.setAttribute('stroke-width',1);
+                            bi.setAttribute('id',"bx_"+ix+"_"+iy);
+                            this.svg.appendChild(bi);
+                            this.boxes.push(bi);
+                        }
+                    }
+                }
+                changeColor(xi,yi,c){
+                    this.boxes[yi*this.nx+xi].setAttribute("fill",c);
+                    return;
+                }
+                changeColorFlat(i,c){
+                    this.boxes[i].setAttribute("fill",c);
+                    return;
+                }
+                setActiveCell(i,s){
+                    //0: none, 1: active, 2: active prime, 3: prime, 4: multiple (non-prime)
+                    this.changeColorFlat(i-1,this.colortable[s]);
+                    return;
+                }
+            }
+            class Primes{
+                constructor(nx,ny){
+                    this.nx=nx; //width
+                    this.ny=ny; //height
+                    this.n=this.nx*this.ny; //total number
+                    this.flags=new Array(); //Eratosthenes flags
+                    let i;
+                    for(i=0;i<this.n;i++){
+                        this.flags.push(true);
+                    }
+                    this.primes=new Array(); //prime numbers
+                    this.activeNumber=-1;
+                    this.activePrimeNumber=-1;
+                    this.iteration=0; //number of iterations
+                    this.canvas=new sCanvas(this.nx, this.ny);
+                    this.stage=0; 
+                    //ステップ毎にアニメーションするためのstate machineの番号定義
+                    //0:none
+                    //1: prime look up start, 2: prime look up loop, 3: prime look up end, 
+                    //4: multiple removal loop, 5: multiple removal end
+                    this.completed=false;
+                }
+
+                setActiveNumber(i){
+                    if(this.activeNumber>0){
+                        this.canvas.setActiveCell(this.activeNumber, (this.flags[this.activeNumber-1])? 0:4);
+                    }
+                    this.canvas.setActiveCell(i, 1);
+                    this.activeNumber=i;
+                }
+                setActivePrimeNumber(i){
+                    if(this.activePrimeNumber>0){
+                        this.canvas.setActiveCell(this.activePrimeNumber, 0);
+                    }
+                    this.canvas.setActiveCell(i, 2);
+                    this.activePrimeNumber=i;
+                }
+
+                unsetActiveNumber(){
+                    if(this.activeNumber>0){
+                        this.canvas.setActiveCell(this.activeNumber, (this.flags[this.activeNumber-1])? 0:4);
+                    }
+                    this.activeNumber=-1;
+                }
+                unsetActivePrimeNumber(){
+                    if(this.activePrimeNumber>0){
+                        this.canvas.setActiveCell(this.activePrimeNumber, 3);
+                    }
+                    this.activePrimeNumber=-1;
+                }
+
+                addPrimeNumber(n){
+                    this.primes.push(n);
+                }
+                unsetMask(n){
+                    this.flags[n-1]=false;
+                }
+
+                endLoop(){
+                    this.unsetActiveNumber();
+                    this.unsetActivePrimeNumber();
+                    this.completed=true;
+                    this.stage=0;
+                    if(timer!=null){
+                        clearInterval(timer);
+                        timer=null;
+                    }
+                    document.getElementById("status").innerHTML="探索を完了しました。"+this.primes.length+"個の素数があります。";
+                }
+
+                iterate(){
+                    //アニメーションの各ステップ
+                    //既に終わっていたら何もしない
+                    if(this.completed){return "";}
+                    if(this.stage==0){
+                        //ステージ0 (初期状態の場合)
+                        this.unsetActiveNumber();
+                        this.unsetActivePrimeNumber();
+                        //1は素数でない
+                        this.unsetMask(1);
+                        this.setActiveNumber(1);
+                        //ステージ1に移行
+                        this.stage=1;
+                    }else if(this.stage==1){
+                        //ステージ1 (素数探索初期状態)
+                        let lastPrime = 1;
+                        if(this.primes.length>0){
+                            //最後の素数
+                            lastPrime = this.primes[this.primes.length - 1];
+                        }
+                        //次の素数の探索開始地点
+                        let nextNumber = lastPrime + 1;
+                        if(nextNumber>this.n){
+                            //探索範囲外の場合
+                            this.endLoop();
+                        }else{
+                            //探索範囲内の場合
+                            this.setActiveNumber(nextNumber);
+                            //探索開始
+                            this.stage=2;
+                        }
+                    }else if(this.stage==2){
+                        //素数探索ループ
+                        if(this.flags[this.activeNumber-1]){
+                            //素数だった場合
+                            let prime = this.activeNumber; //素数
+                            let nextNumber = prime * prime; //倍数除外開始地点
+                            if(nextNumber<=this.n){
+                                //倍数除外開始
+                                this.addPrimeNumber(prime);
+                                this.setActivePrimeNumber(prime);
+                                this.stage=3;
+                            }else{
+                                //倍数除外不要なので、次の素数を探す
+                                this.addPrimeNumber(prime);
+                                if(prime+1>this.n){
+                                    //次の数が範囲外
+                                    this.endLoop();
+                                }else{
+                                    //次の数字の判定
+                                    this.setActiveNumber(prime+1);
+                                    this.canvas.setActiveCell(prime,3);
+                                    this.stage=2;
+                                }
+                            }
+                        }else{
+                            //素数じゃなかった場合、次の数字に行く
+                            let nextNumber = this.activeNumber + 1;
+                            if(nextNumber>this.n){
+                                this.endLoop();
+                            }else{
+                                this.setActiveNumber(nextNumber);
+                                this.stage=2;
+                            }
+                        }
+                    }else if(this.stage==3){
+                        //倍数除外処理
+                        let prime = this.activePrimeNumber;
+                        let nextNumber = prime * prime; //n^2から除外を開始
+                        if(nextNumber<=this.n){
+                            this.setActiveNumber(nextNumber);
+                            this.setActivePrimeNumber(prime);
+                            this.stage=4;
+                        }else{
+                            //除外範囲外
+                            this.unsetActiveNumber();
+                            this.unsetActivePrimeNumber();
+                            this.stage=1;
+                        }
+                    }else if(this.stage==4){
+                        //除外処理
+                        this.unsetMask(this.activeNumber);
+                        let nextNumber = this.activeNumber + this.activePrimeNumber;
+                        if(nextNumber>this.n){
+                            this.unsetActiveNumber();
+                            this.unsetActivePrimeNumber();
+                            this.stage=1;
+                        }else{
+                            this.setActiveNumber(nextNumber);
+                            this.stage=4;
+                        }
+                    }
+                    this.iteration++;
+                    if(!this.completed){
+                        document.getElementById("status").innerHTML=this.iteration+"回目のループです。"+this.primes.length+"個の素数を発見しました。";
+                    }
+                }
+
+            }
+            function init(){
+                c=new Primes(50,50);
+            }
+            function iterate(){
+                let n = c.iterate();
+            }
+            function animatePrime(){
+                timer=setInterval(iterate, 25);
+            }
+            window.onload = init;
+        </script>
+        <style>
+            body{
+                background:#ddd;
+                margin: 0px;
+                font-family: 'Noto Sans JP', sans-serif;
+                font-weight: 700;
+            }
+            h1{
+                background:#ff8000;
+                padding:10px 25px;
+                margin: 0px;
+                box-shadow: #777 0px 2px 4px;
+                text-align: center;
+                font-size:36pt;
+            }
+            div#container{
+                background: #fff;
+                max-width:1060px;
+                padding:25px;
+                margin: auto;
+                margin-top:50px;
+                box-shadow: #aaa 0px 0px 8px;
+            }
+            div#result{
+                font-size:36pt;
+                padding: 10px 30px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>エラトステネスのふるい</h1>
+        <div id="container">
+            <div id="form"><button onclick="init()">初期化</button>
+                <button onclick="iterate()">ステップ</button>
+                <button onclick="animatePrime()">アニメーション実行</button>
+                </div>
+            <div id="status">ボタンをクリックしてください</div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="1060" height="1060" viewBox="0 0 1060 1060" id="cnv"></svg>
+        </div>
+    </body>
+</html>
