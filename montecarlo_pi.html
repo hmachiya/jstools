@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>MonteCarlo 円周率計算機</title>
+        <script>
+            let cnv=null;
+            let mc=null;
+            let stepsize=10;
+            let timer=null;
+            let isHelpOpen=false;
+            class MonteCarlo{
+                constructor(){
+                    this.nin=0;
+                    this.niter=0;
+                    this.cnv=new sCanvas();
+                    this.statusBox=document.getElementById("status");
+                    this.lastTime=new Date();
+                }
+                iterate(nrepeat){
+                    let i,x,y,r2,isin;
+                    for(i=0;i<nrepeat;i++){
+                        x = Math.random();
+                        y = Math.random();
+                        r2 = x*x+y*y;
+                        isin = (r2<=1);
+                        this.niter++;
+                        if(isin){
+                            this.nin++;
+                        }
+                    }
+                    this.cnv.addPoint(x,y,isin);
+                    let currentTime = new Date();
+                    let deltaTime = (currentTime-this.lastTime)/nrepeat;
+                    this.statusBox.innerHTML=`#in=${this.nin}, #total=${this.niter}, pi=${(this.nin/this.niter*4).toFixed(5)}, t=${deltaTime}msec`;
+                    this.lastTime=currentTime;
+                }
+            }
+            class sCanvas{
+                constructor(){
+                    this.svg = document.getElementById("cnv");
+                    this.vps = this.svg.getAttribute("width") - 0; //width must be equal to height
+                    this.pad = 16;
+                    this.borderw = 2;
+                    this.boxs = this.vps-(this.pad)*2;
+                    
+                    //1/4 circle
+                    let circ = document.createElementNS('http://www.w3.org/2000/svg','path');
+                    circ.setAttribute("d",`M ${this.pad},${this.pad} a${this.boxs},${this.boxs},-90,0,1,${this.boxs},${this.boxs} l${-this.boxs},0 z`);
+                    circ.setAttribute('fill', 'none');
+                    circ.setAttribute('stroke', '#333');
+                    circ.setAttribute('stroke-width', 1);
+                    this.svg.appendChild(circ);
+
+                    //bounding box
+                    let bbx = document.createElementNS('http://www.w3.org/2000/svg','rect');
+                    bbx.setAttribute('x', this.pad);
+                    bbx.setAttribute('y', this.pad);
+                    bbx.setAttribute('width', this.boxs);
+                    bbx.setAttribute('height', this.boxs);
+                    bbx.setAttribute('fill', 'none');
+                    bbx.setAttribute('stroke', '#333');
+                    bbx.setAttribute('stroke-width', this.borderw);
+                    this.svg.appendChild(bbx);
+
+                    this.pointIn =  document.createElementNS('http://www.w3.org/2000/svg','circle');
+                    this.pointIn.setAttribute('r', "8");
+                    this.pointIn.setAttribute('fill', '#00f');
+
+                    this.pointOut =  document.createElementNS('http://www.w3.org/2000/svg','circle');
+                    this.pointOut.setAttribute('r', "8");
+                    this.pointOut.setAttribute('fill', '#f00');
+                }
+                addPoint(x,y,is_in){
+                    let newPoint=null;
+                    if(is_in){
+                        newPoint=this.pointIn.cloneNode();
+                    }else{
+                        newPoint=this.pointOut.cloneNode();
+                    }
+                    newPoint.setAttribute("cx",`${x*this.boxs+this.pad}`);
+                    newPoint.setAttribute("cy",`${(1-y)*this.boxs+this.pad}`);
+                    this.svg.appendChild(newPoint);
+                }
+            }
+            function step(){
+                mc.iterate(stepsize);
+            }
+            function start(){
+                disprate=document.getElementById("disprate").value-0; //表示個数 [個/秒]
+                calcrate=document.getElementById("calcrate").value-0; //計算速度 [回/秒]
+                intervalTime = 1/disprate*1000; //in msec
+                stepsize = intervalTime*calcrate/1000; //calculations per iteration
+                if(stepsize<1) stepsize=1;
+                timer=setInterval(step,intervalTime);
+            }
+            function stop(){
+                if(timer!=null){
+                    clearInterval(timer);
+                    timer=null;
+                }
+            }
+            function toggleHelp(){
+                if(isHelpOpen){
+                    document.getElementById("formhelp").style.display="none";
+                }else{
+                    document.getElementById("formhelp").style.display="block";
+                }
+                isHelpOpen=~isHelpOpen;
+            }
+            window.onload=function(){
+                mc=new MonteCarlo();
+            }
+        </script>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <h1>Monte Carlo法による円周率計算機</h1>
+        <div id="container">
+            <div id="form">
+                表示速度 <input type="text" id="disprate" value="5" size="2" /> [回/秒]
+                計算速度 <input type="text" id="calcrate" value="250" size="3" /> [回/秒]
+                <button onclick="toggleHelp()">? ヘルプ</button>
+                <button onclick="start()">▶ 開始</button>
+                <button onclick="stop()">■ 停止</button>
+                <div id="formhelp">
+                    <p><span class="head">表示速度</span> 1秒間に何回表示を更新するかを決めます。表示1回あたり1個の点を間引いて画面に表示します。</p>
+                    <p><span class="head">計算速度</span> 1秒間に何回試行するかを決めます。</p>
+                </div>
+           </div>
+            <div id="status">開始するにはボタンをクリックしてください</div>
+            <div style="background:white; text-align: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" id="cnv"></svg>
+            </div>
+        </div>
+        <footer>
+            (C) H. Machiya 2023
+        </footer>
+    </body>
+</html>
