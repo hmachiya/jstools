@@ -2,6 +2,7 @@
 <head>
 	<title>Hypocycloid</title>
 	<meta charset="utf-8" />
+	<link rel="stylesheet" href="style.css" />
 	<script>
 		var w=1024;
 		var h=1024;
@@ -79,105 +80,21 @@
 			if(hi==5) return [v,p,q];
 		}
 	</script>
-	<style>
-		body{
-			margin:0px;
-
-		}
-		h1{
-			margin:0px;
-			padding:10px 20px;
-			background:#339933;
-			color:white;
-			font-family: Avenir-Black, Helvetica;
-		}
-		h2{
-			font-family: Avenir;
-			margin:20px 30px;
-			margin-top:30px;	
-		}
-		hr{
-			border:none;
-			border-bottom:2px solid #338033;
-			margin:5px 10px;
-		}
-		div.cont{
-			margin:10px 50px;
-		}
-		p span.vector{
-			font-weight:bold;
-		}
-		p.formula{
-			font-family:Consolas;
-			margin-left:10px;
-		}
-		input{
-			border:3px solid #ddd;
-			border-radius:4px;
-			background:white;
-			padding:5px 10px;
-			margin:5px;
-			font-family:Helvetica;
-			font-size:12pt;
-		}
-		input:focus{
-			outline:none;
-			border:3px solid #66FF33;
-		}
-		input.disabled{
-			background:#eee;
-			color:#777;
-		}
-		div#footer{
-			margin:10px 20px;
-			text-align:center;
-			font-family:Avenir;
-			font-size:12pt;
-		}
-	</style>
 </head>
-<body><!--
-	<h1>HTML5 Hypocycloid Generator</h1>
-	<h2>Background</h2>
-	<div class="cont">
-		<img align="left" src="imgs/fig1.png" />
-		<p><span class="vector">Hypocloid<span> is a kind of a cycloid. The curve is a trace of a fixed point on a circle that turns around inside of another circle.</p>	
-		<p>Position of the center of the smaller circle is given by using complex number as:</p>
-		<p class="formula"><span class="vector">r<sub>0</sub></span>=(a-b)exp(iθ)</p>
-		<p>And the position of the fixed point on the smaller circie is given as:</p>
-		<p class="formula"><span class="vector">r<sub>1</sub></span>=<span class="vector">r<sub>0</sub></span>+bexp(iφ)</p>
-		<p>Relationship berween θ and φ is:</p>
-		<p class="formula">aθ=bφ</p>
-		<p>So the position of the fixed point is shown as a function of θ:</p>
-		<p class="formula"><span class="vector">r<sub>1</sub></span>=(a-b)exp(iθ)+bexp(i(1-a/b)θ)</p>
-		<br clear="left" />
-	</div>
-	<hr />
-	<h2>Plot Using HTML5 Canvas Object</h2>
-	-->
-		<div class="cont">
-		<!--<p>Following form determins the size of the circles, and parameter θ to plot. </p>
-		<p>Results will be shown in a 512x512px image below. For the size of 512x512px, 1e-4 is sufficient for Δθ. To get more accuracy, decrease Δθ.</p>
-		<p>Range of θ determins how many times the smaller circle goes around the circle. For some b/a parameter (e.g. 7/5), plotting automatically stops when the point returns to the initial position of (x,y)=(1,0), even before θ reaches the end of assigned θ range.</p>
-		<p>*b/a must be greater than 1</p>
-		<p>*Try b/a = π, e, γ, sqrt(π), n/m</p>-->
-		<table>
-			<tr><th>Parameter<br />b/a</th><td><input id="rad" value="3.14" /></td><td>Outer Radius b, Inner Radius a</td></tr>
-			<tr><th>α</th><td><input id="alpha" value="0.9" /></td><td></td></tr>
-			<tr><th>Range of θ</th><td><input class="disabled" id="tstart" size="3" disabled="disabled" value="0" />π~<input size="3" id="tend" value="100" />π</td><td></td></tr>
-			<tr><th>Step Δθ</th><td><input id="tstep" value="0.0001" />π</td><td></td></tr>
-		</table>
-		<button onclick="exec()">Run</button><br />
+<body>
+	<h1>Hypocycloid生成器</h1>
+	<div id="container">
+		<div id="form">
+			<table>
+				<tr><th>a/b</th><td><input id="rad" value="3.14" /></td><td>外側の円(半径a)と、その内側をまわる内側の円の半径(b)の比率 (1以上)</td></tr>
+				<tr><th>α</th><td><input id="alpha" value="0.9" /></td><td>半径bの円のどこに点を打つか (0-1)</td></tr>
+				<tr><th>θの範囲</th><td><input class="disabled" id="tstart" size="3" disabled="disabled" value="0" />π~<input size="3" id="tend" value="100" />π</td><td></td></tr>
+				<tr><th>Δθのステップ</th><td><input id="tstep" value="0.0001" />π</td><td></td></tr>
+			</table>
+			<button onclick="exec()">▼画像を生成する</button>
+		</div>
 		<div id="status"></div>
 		<canvas id="cnvs" width="1024" height="1024"></canvas>
 	</div>
-	<!--
-	<h2>Reference</h2>
-	<div class="cont">
-	<p>[1] <a href="http://mathworld.wolfram.com/Hypocycloid.html" target="_blank">http://mathworld.wolfram.com/Hypocycloid.html</a></p>
-	</div>
-	<hr />
-	<div id="footer">(C)2014- mchhdnr All Rights Reserved</div>
-	-->
 </body>
 </html>

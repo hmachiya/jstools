@@ -2,7 +2,7 @@
 <html lang="ja">
     <head>
         <meta charset="utf-8" />
-        <title>コラッツ予想</title>
+        <title>コラッツ予想計算機</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;700&display=swap" rel="stylesheet">
@@ -76,84 +76,22 @@
                 document.getElementById("singleTestHistory").innerHTML=c.toString();
             }
         </script>
+        <link rel="stylesheet" href="style.css" />
         <style>
-            body{
-                background:#ddd;
-                margin: 0px;
-                font-family: 'Noto Sans JP', sans-serif;
-                font-weight: 700;
-            }
-            h1{
-                background:#ff8000;
-                padding:10px 25px;
-                margin: 0px;
-                box-shadow: #777 0px 2px 4px;
-                text-align: center;
-                font-size:48pt;
-            }
-            div#singleTest{
-                background: #eee;
-                display: none;
-                max-width:800px;
-                margin: auto;
-                margin-top:50px;
-                box-shadow: #aaa 0px 0px 8px;
-            }
-            div#singleTestForm{
-                max-width:800px;
-                margin: auto;
-                margin-top:50px;
-                padding:50px 0px;
-                display:flex;
-                align-items: center;
-                justify-content: center;
-            }
             div#singleTestResult{
-                font-size:36pt;
                 padding: 10px 30px;
             }
-            
-            div#singleTestForm .textbox{
-                display: inline-block;
-                font-size: 36pt;
-                border-radius:8px 0px 0px 8px;
-                margin:0px;
-                border: 4px solid #ff8000;
-                padding:5px 10px;
-                font-family: 'Noto Sans JP', sans-serif;
-                font-weight: 700;
-                -webkit-appearance: none;
-            }
-            div#singleTestForm .textbox:focus{
-                outline:none;
-            }
-            div#singleTestForm .button{
-                display: inline-block;
-                font-size: 36pt;
-                border-radius:0px 8px 8px 0px;
-                border:4px solid #ff8000;
-                border-left:none;
-                background: #ff8000;
-                padding:5px 10px;
-                text-decoration: none;
-                color:#333;
-                -webkit-appearance: none;
-            }
-            div#singleTestForm .button:active{
-                background:#d46b02;
-            }
             div#singleTestHistory{
-                font-size:20px;
                 padding: 10px 15px;
             }
         </style>
     </head>
     <body>
+        <h1>コラッツ予想の計算機</h1>    
         <div id="container">
-            <h1>コラッツ予想の計算機</h1>
-            <div id="singleTestForm">
+            <div id="form">
                 <input class="textbox" type="text" id="singleN" size="8" />
-                <a class="button" href="#" onclick="doSingleTest()">GO!</a>
+                <button onclick="doSingleTest()">計算</a>
             </div>
             <div id="singleTest">
                 <div id="singleTestResult"></div>
