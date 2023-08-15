@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>jstools</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        div#form table tr td, div#form table tr th{
+            text-align: center;
+        }
+        div#result{
+            font-size: 36pt;
+            margin:15px;
+            padding:15px;
+            background:#333;
+            color:white;
+        }
+    </style>
+    <script>
+        function update(){
+            let r=0;
+            if(isChecked("cb_or")) r+=400;
+            if(isChecked("cb_gr")) r+= 40;
+            if(isChecked("cb_er")) r+=  4;
+            if(isChecked("cb_ow")) r+=200;
+            if(isChecked("cb_gw")) r+= 20;
+            if(isChecked("cb_ew")) r+=  2;
+            if(isChecked("cb_ox")) r+=100;
+            if(isChecked("cb_gx")) r+= 10;
+            if(isChecked("cb_ex")) r+=  1;
+            let s="chmod "+ ("000"+r.toString()).slice(-3) + " {files}";
+            document.getElementById("result").innerHTML=s;
+        }
+        function isChecked(id){
+            return document.getElementById(id).checked;
+        }
+        window.onload=update;
+    </script>
+</head>
+<body>
+    <h1>chmod計算機</h1>
+    <div id="container">
+        <div id="form">
+            <table>
+                <tr>
+                    <th></th>
+                    <th>Owner</th>
+                    <th>Group</th>
+                    <th>Everyone</th>
+                </tr>
+                <tr>
+                    <th>Read</th>
+                    <td><input type="checkbox" id="cb_or" checked="checked" onchange="update()" /></td>
+                    <td><input type="checkbox" id="cb_gr" checked="checked" onchange="update()" /></td>
+                    <td><input type="checkbox" id="cb_er" onchange="update()" /></td>
+                </tr>
+                <tr>
+                    <th>Write</th>
+                    <td><input type="checkbox" id="cb_ow" checked="checked" onchange="update()" /></td>
+                    <td><input type="checkbox" id="cb_gw" checked="checked" onchange="update()" /></td>
+                    <td><input type="checkbox" id="cb_ew" onchange="update()" /></td>
+                </tr>
+                <tr>
+                    <th>Execute</th>
+                    <td><input type="checkbox" id="cb_ox" onchange="update()" /></td>
+                    <td><input type="checkbox" id="cb_gx" onchange="update()" /></td>
+                    <td><input type="checkbox" id="cb_ex" onchange="update()" /></td>
+                </tr>
+            </table>
+        </div>
+        <div id="result">
+
+        </div>
+    </div>
+    <footer>
+        (C) 2023- H. Machiya
+    </footer>
+</body>
+</html>
