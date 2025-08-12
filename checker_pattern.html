@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Checker pattern genertor</title>
+        <link rel="stylesheet" href="style.css" />    
+        <script>
+            var checkers_horizontal=[];
+            var checkers_vertical=[];
+            var display_scale=2;
+            var nrepeat=5;
+            checkers_horizontal.push({
+                "size": [10],
+                "color": ["#0000FF"]
+            });
+            checkers_horizontal.push({
+                "size": [4,2,4],
+                "color": ["#333333","#FFFFFF", "#333333"]
+            });
+            checkers_horizontal.push({
+                "size": [10],
+                "color": ["#0000FF"]
+            });
+            checkers_horizontal.push({
+                "size": [10],
+                "color": ["#FFFFFF"]
+            });
+            checkers_horizontal.push({
+                "size": [10],
+                "color": ["#FFFFFF"]
+            });
+            checkers_horizontal.push({
+                "size": [10],
+                "color": ["#FFFFFF"]
+            });
+            checkers_horizontal.push({
+                "size": [10],
+                "color": ["#0000FF"]
+            });
+            checkers_vertical.push({
+                "size": [10],
+                "color": ["#0000FF"]
+            });
+            checkers_vertical.push({
+                "size": [10],
+                "color": ["#FFFFFF"]
+            });
+            checkers_vertical.push({
+                "size": [10],
+                "color": ["#FFFFFF"]
+            });
+            checkers_vertical.push({
+                "size": [10],
+                "color": ["#FFFFFF"]
+            });
+            checkers_vertical.push({
+                "size": [10],
+                "color": ["#0000FF"]
+            });
+            checkers_horizontal.push({
+                "size": [4,2,4],
+                "color": ["#333333","#FFFFFF", "#333333"]
+            });
+            checkers_vertical.push({
+                "size": [10],
+                "color": ["#0000FF"]
+            });
+        </script>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+            }
+            .linespec {
+                display: inline-block;
+                padding: 8px 8px;
+                margin: 0px;
+                border:1px solid #333;
+                border-radius: 8px;
+            }
+            table {
+                border-collapse: collapse;
+            }
+            td {
+                padding: 5px;
+            }
+            input[type="number"] {
+                width: 50px;
+                height: 30px;
+                padding: 0px 10px;
+                margin: 0px;
+                border-radius: 4px;
+            }
+            input[type="color"] {
+                width: 70px;
+                height: 30px;
+                padding:0px;
+            }
+            div.list_container {
+                margin: 10px;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>チェッカー柄生成器</h1>
+        <div id="container">
+                <canvas id="canvas" width="600" height="600" style="border:1px solid #333;"></canvas>
+            <div>
+                <button onclick="drawCheckerboard()">再生成</button>
+            </div>
+            <div id="form" style="display: flex;">
+                <div class="list_container">
+                    <div>垂直ライン</div>
+                    <div id="vline_list"></div>
+                    <table>
+                        <tr>
+                            <td><input type="color" id="vc000" value="#000000" /></td>
+                            <td><input type="color" id="vc001" value="#000000" /></td>
+                            <td><input type="color" id="vc002" value="#000000" /></td>
+                            <td><input type="color" id="vc003" value="#000000" /></td>
+                            <td><input type="color" id="vc004" value="#000000" /></td>
+                        </tr>
+                        <tr>
+                            <td><input type="number" id="vs000" value="10" min="0" /></td>
+                            <td><input type="number" id="vs001" value="0" min="0" /></td>
+                            <td><input type="number" id="vs002" value="0" min="0" /></td>
+                            <td><input type="number" id="vs003" value="0" min="0" /></td>
+                            <td><input type="number" id="vs004" value="0" min="0" /></td>
+                        </tr>
+                    </table>
+                    <div>
+                        <button onclick="clearVertical();">全削除</button>
+                        <button onclick="addVertical();">追加</button>
+                </div>
+                </div>
+                <div class="list_container">
+                    <div>水平ライン</div>
+                    <div id="hline_list"></div>
+                    <table>
+                        <tr>
+                            <td><input type="color" id="hc000" value="#000000" /></td>
+                            <td><input type="color" id="hc001" value="#000000" /></td>
+                            <td><input type="color" id="hc002" value="#000000" /></td>
+                            <td><input type="color" id="hc003" value="#000000" /></td>
+                            <td><input type="color" id="hc004" value="#000000" /></td>
+                        </tr>
+                        <tr>
+                            <td><input type="number" id="hs000" value="10" min="0" /></td>
+                            <td><input type="number" id="hs001" value="0" min="0" /></td>
+                            <td><input type="number" id="hs002" value="0" min="0" /></td>
+                            <td><input type="number" id="hs003" value="0" min="0" /></td>
+                            <td><input type="number" id="hs004" value="0" min="0" /></td>
+                        </tr>
+                    </table>
+                    <div>
+                        <button onclick="clearHorizontal();">全削除</button>
+                        <button onclick="addHorizontal();">追加</button>
+                </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            var canvas = document.getElementById('canvas');
+            var ctx = canvas.getContext('2d');
+            var centerX = canvas.width / 2;
+            var centerY = canvas.height / 2;
+            function drawCheckerboard() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#FFFFFF';
+                xpos=0;
+                ypos=0;
+                checker_width = 0;
+                checker_height = 0;
+                for(var i=0; i<checkers_horizontal.length; i++) {
+                    for(var j=0; j<checkers_horizontal[i].size.length; j++) {
+                        checker_height += checkers_horizontal[i].size[j] * nrepeat * display_scale;
+                    }
+                }
+                for(var i=0; i<checkers_vertical.length; i++) {
+                    for(var j=0; j<checkers_vertical[i].size.length; j++) {
+                        checker_width += checkers_vertical[i].size[j] * nrepeat * display_scale;
+                    }
+                }
+                if(checker_width === 0 || checker_height === 0) {
+                    return;
+                }
+                var cell_height=0;
+                var cell_width=0;
+                for(var ix=0; ix<checkers_horizontal.length*nrepeat; ix++) {
+                    xpos=0;
+                    for(var iy=0; iy<checkers_vertical.length*nrepeat; iy++) {
+                        cellh=checkers_horizontal[ix%checkers_horizontal.length];
+                        cellv=checkers_vertical[iy%checkers_vertical.length];
+                        cell_height = 0;
+                        cell_width = 0;
+                        for(var j=0; j<cellh.size.length; j++) {
+                            cell_height += cellh.size[j] * display_scale;
+                        }
+                        for(var j=0; j<cellv.size.length; j++) {
+                            cell_width += cellv.size[j] * display_scale;
+                        }
+                        if((ix+iy) % 2 === 0) {
+                            //horizontal
+                            var cell_inner_pos=0;
+                            for(var j=0; j<cellh.color.length; j++) {
+                                ctx.fillStyle =cellh.color[j];
+                                ctx.fillRect(centerX - checker_width/2 + xpos, centerY - checker_height/2 + ypos + cell_inner_pos, cell_width, cellh.size[j] * display_scale);
+                                cell_inner_pos += cellh.size[j] * display_scale;
+                            }
+                        }else{
+                            //vertical
+                            var cell_inner_pos=0;
+                            for(var j=0; j<cellv.color.length; j++) {
+                                ctx.fillStyle =cellv.color[j];
+                                ctx.fillRect(centerX - checker_width/2 + xpos + cell_inner_pos, centerY - checker_height/2 + ypos, cellv.size[j] * display_scale, cell_height);
+                                cell_inner_pos+=cellv.size[j] * display_scale;
+                            }
+                        }
+                        xpos+=cell_width;
+                    }
+                    ypos+=cell_height;
+                }
+            } 
+            function updateLineList() {
+                var vline_list = document.getElementById('vline_list');
+                var hline_list = document.getElementById('hline_list');
+                vline_list.innerHTML = '';
+                hline_list.innerHTML = '';
+                var tbl = document.createElement('table');
+                for(var i=0; i<checkers_vertical.length; i++) {
+                    var tr = document.createElement('tr');
+                    var td = document.createElement('td');
+                    td.innerHTML = '';
+                    for(var j=0; j<checkers_vertical[i].size.length; j++) {
+                        td.innerHTML += "<span class='linespec' style='background:"+checkers_vertical[i].color[j]+"'></span> "+checkers_vertical[i].size[j] + (j < checkers_vertical[i].size.length - 1 ? ', ' : '');
+                    }
+                    tr.appendChild(td);
+                    var td = document.createElement('td');
+                    td.innerHTML += " <button onclick='moveItem(0,"+i+",-1)'>▲</button> <button onclick='moveItem(0,"+i+",1)'>▼</button> <button onclick='deleteItem(0,"+i+")'>X</button>";
+                    tr.appendChild(td);
+                    tbl.appendChild(tr);
+                }
+                vline_list.appendChild(tbl);
+                var tbl = document.createElement('table');
+                for(var i=0; i<checkers_horizontal.length; i++) {
+                    var tr = document.createElement('tr');
+                    var td = document.createElement('td');
+                    td.innerHTML = '';
+                    for(var j=0; j<checkers_horizontal[i].size.length; j++) {
+                        td.innerHTML += "<span class='linespec' style='background:"+checkers_horizontal[i].color[j]+"'></span> "+checkers_horizontal[i].size[j] + (j < checkers_horizontal[i].size.length - 1 ? ', ' : '');
+                    }
+                    tr.appendChild(td);
+                    var td = document.createElement('td');
+                    td.innerHTML += " <button onclick='moveItem(1,"+i+",-1)'>▲</button> <button onclick='moveItem(1,"+i+",1)'>▼</button> <button onclick='deleteItem(1,"+i+")'>X</button>";
+                    tr.appendChild(td);
+                    tbl.appendChild(tr);
+                }
+                hline_list.appendChild(tbl);
+            }
+            function addVertical(){
+                var colors = [document.getElementById('vc000').value, document.getElementById('vc001').value, document.getElementById('vc002').value, document.getElementById('vc003').value, document.getElementById('vc004').value];
+                var sizes = [parseInt(document.getElementById('vs000').value), parseInt(document.getElementById('vs001').value), parseInt(document.getElementById('vs002').value), parseInt(document.getElementById('vs003').value), parseInt(document.getElementById('vs004').value)];
+                var filtered_colors=[];
+                var filtered_sizes=[];
+                for(var i=0; i<colors.length; i++) {
+                    if(isNaN(sizes[i]) || sizes[i] <= 0) {
+                        continue;
+                    }
+                    filtered_colors.push(colors[i]);
+                    filtered_sizes.push(sizes[i]);
+                }
+                if(filtered_colors.length > 0 || filtered_sizes.length > 0) {
+                    checkers_vertical.push({
+                        'size': filtered_sizes,
+                        'color': filtered_colors
+                    });
+                }
+                updateLineList();
+                drawCheckerboard();
+            }
+            function clearVertical() {
+                checkers_vertical = [];
+                updateLineList();
+            }
+            
+            function addHorizontal(){
+                var colors = [document.getElementById('hc000').value, document.getElementById('hc001').value, document.getElementById('hc002').value, document.getElementById('hc003').value, document.getElementById('hc004').value];
+                var sizes = [parseInt(document.getElementById('hs000').value), parseInt(document.getElementById('hs001').value), parseInt(document.getElementById('hs002').value), parseInt(document.getElementById('hs003').value), parseInt(document.getElementById('hs004').value)];
+                var filtered_colors=[];
+                var filtered_sizes=[];
+                for(var i=0; i<colors.length; i++) {
+                    if(isNaN(sizes[i]) || sizes[i] <= 0) {
+                        continue;
+                    }
+                    filtered_colors.push(colors[i]);
+                    filtered_sizes.push(sizes[i]);
+                }
+                if(filtered_colors.length > 0 || filtered_sizes.length > 0) {
+                    checkers_horizontal.push({
+                        'size': filtered_sizes,
+                        'color': filtered_colors
+                    });
+                }
+                updateLineList();
+                drawCheckerboard();
+            }
+            function clearHorizontal() {
+                checkers_horizontal = [];
+                updateLineList();
+            }
+            function moveItem(type, index, direction) {
+                if(type === 0) { // vertical
+                    if(index + direction >= 0 && index + direction < checkers_vertical.length) {
+                        var item = checkers_vertical.splice(index, 1)[0];
+                        checkers_vertical.splice(index + direction, 0, item);
+                    }
+                } else { // horizontal
+                    if(index + direction >= 0 && index + direction < checkers_horizontal.length) {
+                        var item = checkers_horizontal.splice(index, 1)[0];
+                        checkers_horizontal.splice(index + direction, 0, item);
+                    }
+                }
+                updateLineList();
+                drawCheckerboard();
+            }
+            function deleteItem(type, index) {
+                if(type === 0) { // vertical
+                    checkers_vertical.splice(index, 1);
+                } else { // horizontal
+                    checkers_horizontal.splice(index, 1);
+                }
+                updateLineList();
+                drawCheckerboard();
+            }
+            updateLineList();
+            drawCheckerboard();
+        </script>
+    </body>
+</html>
