@@ -399,19 +399,20 @@
                     var colorDiv = document.createElement('div');
                     colorDiv.className = 'linespec';
                     colorDiv.style.backgroundColor = color_presets[i];
-                    colorDiv.onclick = (function(i) {
-                        return function() {
-                            popupColorPicker(i);
-                        };
-                    })(i);
+                    colorDiv.addEventListener('click', function(event) {
+                        colorpicker_index = i;
+                        var dialog_window = document.getElementById('dialog');
+                        var dialog = document.getElementById('popup_dialog');
+                        dialog_window.style.position = 'absolute';
+                        dialog_window.style.left=event.clientX+"px";
+                        dialog_window.style.top=event.clientY+"px";
+                        console.log(event.clientX, event.clientY);
+                        dialog.style.display = 'block';
+                        event.stopPropagation();
+                    });
                     colorDiv.innerHTML = '<span style="color:'+color_presets[i]+'; filter: invert(100%) grayscale(100%) contrast(100);">No.' + i + ': ' + color_presets[i]+"</span>";
                     color_list.appendChild(colorDiv);
                 }
-            }
-            function popupColorPicker(i){
-                colorpicker_index = i;
-                var dialog = document.getElementById('popup_dialog');
-                dialog.style.display = 'block';
             }
             function colorpicker_ok() {
                 var color = document.getElementById('color_picker').value;
