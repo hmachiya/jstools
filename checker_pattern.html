@@ -399,14 +399,16 @@
                     var colorDiv = document.createElement('div');
                     colorDiv.className = 'linespec';
                     colorDiv.style.backgroundColor = color_presets[i];
+                    colorDiv.value = i;
                     colorDiv.addEventListener('click', function(event) {
-                        colorpicker_index = i;
+                        colorpicker_index = this.value;
                         var dialog_window = document.getElementById('dialog');
                         var dialog = document.getElementById('popup_dialog');
                         dialog_window.style.position = 'absolute';
                         dialog_window.style.left=event.clientX+"px";
                         dialog_window.style.top=event.clientY+"px";
-                        console.log(event.clientX, event.clientY);
+                        var color_picker = document.getElementById('color_picker');
+                        color_picker.value = color_presets[this.value];
                         dialog.style.display = 'block';
                         event.stopPropagation();
                     });
