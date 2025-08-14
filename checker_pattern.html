@@ -7,63 +7,65 @@
         <script>
             var checkers_horizontal=[];
             var checkers_vertical=[];
-            var display_scale=2;
-            var nrepeat=5;
+            var display_scale=1;
+            var nrepeat=10;
+            var color_presets=["#333333", "#41456f", "#25453d", "#46477d","#8462be","#eeeeee"]
+            var colorpicker_index=-1;
             checkers_horizontal.push({
                 "size": [10],
-                "color": ["#0000FF"]
-            });
-            checkers_horizontal.push({
-                "size": [4,2,4],
-                "color": ["#333333","#FFFFFF", "#333333"]
-            });
-            checkers_horizontal.push({
-                "size": [10],
-                "color": ["#0000FF"]
-            });
-            checkers_horizontal.push({
-                "size": [10],
-                "color": ["#FFFFFF"]
-            });
-            checkers_horizontal.push({
-                "size": [10],
-                "color": ["#FFFFFF"]
-            });
-            checkers_horizontal.push({
-                "size": [10],
-                "color": ["#FFFFFF"]
-            });
-            checkers_horizontal.push({
-                "size": [10],
-                "color": ["#0000FF"]
-            });
-            checkers_vertical.push({
-                "size": [10],
-                "color": ["#0000FF"]
-            });
-            checkers_vertical.push({
-                "size": [10],
-                "color": ["#FFFFFF"]
-            });
-            checkers_vertical.push({
-                "size": [10],
-                "color": ["#FFFFFF"]
-            });
-            checkers_vertical.push({
-                "size": [10],
-                "color": ["#FFFFFF"]
-            });
-            checkers_vertical.push({
-                "size": [10],
-                "color": ["#0000FF"]
+                "color": [1]
             });
             checkers_horizontal.push({
                 "size": [4,2,4],
-                "color": ["#333333","#FFFFFF", "#333333"]
+                "color": [1,5,1]
+            });
+            checkers_horizontal.push({
+                "size": [10],
+                "color": [1]
+            });
+            checkers_horizontal.push({
+                "size": [10],
+                "color": [5]
+            });
+            checkers_horizontal.push({
+                "size": [10],
+                "color": [5]
+            });
+            checkers_horizontal.push({
+                "size": [10],
+                "color": [5]
+            });
+            checkers_horizontal.push({
+                "size": [10],
+                "color": [1]
             });
             checkers_vertical.push({
                 "size": [10],
-                "color": ["#0000FF"]
+                "color": [1]
+            });
+            checkers_vertical.push({
+                "size": [10],
+                "color": [5]
+            });
+            checkers_vertical.push({
+                "size": [10],
+                "color": [5]
+            });
+            checkers_vertical.push({
+                "size": [10],
+                "color": [5]
+            });
+            checkers_vertical.push({
+                "size": [10],
+                "color": [1]
+            });
+            checkers_vertical.push({
+                "size": [4,2,4],
+                "color": [1,5,1]
+            });
+            checkers_vertical.push({
+                "size": [10],
+                "color": [1]
             });
         </script>
         <style>
@@ -72,10 +74,12 @@
             }
             .linespec {
                 display: inline-block;
-                padding: 8px 8px;
+                width:75px;
+                padding: 4px 4px;
                 margin: 0px;
                 border:1px solid #333;
-                border-radius: 8px;
+                border-radius: 4px;
+                margin: 5px;
             }
             table {
                 border-collapse: collapse;
@@ -84,80 +88,122 @@
                 padding: 5px;
             }
             input[type="number"] {
-                width: 50px;
-                height: 30px;
-                padding: 0px 10px;
+                width: 30px;
+                padding: 4px 10px;
                 margin: 0px;
                 border-radius: 4px;
             }
             input[type="color"] {
-                width: 70px;
-                height: 30px;
+                width: 20px;
+                height: 20px;
                 padding:0px;
+                border:1px solid #333;
+                background: none;
+                border-radius: 5px;
+                margin:0px;
             }
             div.list_container {
                 margin: 10px;
                 padding: 10px;
+                width: 350px;
                 border: 1px solid #ccc;
                 border-radius: 8px;
             }
+            div.list_container .list_header {
+                font-weight: bold;
+                margin: -10px;
+                margin-bottom: 10px;
+                padding: 10px;
+                border-bottom: 2px solid #18106c;
+            }
+            div#popup_dialog {
+                position: fixed;
+                background: rgba(0,0,0,0.95);
+                opacity: 0.9;
+                display: block;
+                left: 0px;
+                top: 0px;
+                width: 100%;
+                height: 100%;
+                display: none;
+            }
+            div#popup_dialog div#dialog{
+                position:fixed;
+                left:100px;
+                top: 100px;
+                width:150px;
+                background: #eeeeee;
+                border:1px solid #333;
+                border-radius: 3px;
+                box-shadow: 2px 2px 5px rgba(0,0,0,0.9);
+                padding: 5px;
+            }
+            div#popup_dialog div#dialog div#dialog_header {
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+            div#popup_dialog div#dialog div#dialog_content input[type="color"] {
+                width: 30%;
+                height: 30px;
+                padding: 0px;
+                border: 1px solid #333;
+                background: none;
+                border-radius: 5px;
+            }
+            div#popup_dialog div#dialog div#dialog_buttons button{
+                padding: 5px 10px;
+                margin: 5px;
+                border: 1px solid #333;;
+                border-radius: 4px;
+            }            
         </style>
     </head>
     <body>
         <h1>チェッカー柄生成器</h1>
         <div id="container">
-                <canvas id="canvas" width="600" height="600" style="border:1px solid #333;"></canvas>
-            <div>
-                <button onclick="drawCheckerboard()">再生成</button>
-            </div>
-            <div id="form" style="display: flex;">
+            <canvas id="canvas" width="600" height="600" style="border:1px solid #333;"></canvas>
+            <div id="form" style="display: flex; flex-wrap: wrap;">
                 <div class="list_container">
-                    <div>垂直ライン</div>
+                    <div class="list_header">基本設定</div>
+                    <table>
+                        <tr>
+                            <th>表示サイズ</th>
+                            <td><input type="number" id="display_scale" value="1" min="0.1" step="0.1" style="width:50px;" onchange="display_scale=parseFloat(this.value); drawCheckerboard();" /></td>
+                        </tr>
+                        <tr>
+                            <th>繰り返し数</th>
+                            <td><input type="number" id="nrepeat" value="10" min="1" step="1" style="width:50px;"  onchange="nrepeat=parseInt(this.value); drawCheckerboard();" /></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <button onclick="drawCheckerboard();">表示更新</button>
+                            </td>
+                        </tr>
+                    </table>
+                    <div id="color_list"></div>
+                </div>
+                <div class="list_container">
+                    <div class="list_header">垂直ライン</div>
                     <div id="vline_list"></div>
-                    <table>
-                        <tr>
-                            <td><input type="color" id="vc000" value="#000000" /></td>
-                            <td><input type="color" id="vc001" value="#000000" /></td>
-                            <td><input type="color" id="vc002" value="#000000" /></td>
-                            <td><input type="color" id="vc003" value="#000000" /></td>
-                            <td><input type="color" id="vc004" value="#000000" /></td>
-                        </tr>
-                        <tr>
-                            <td><input type="number" id="vs000" value="10" min="0" /></td>
-                            <td><input type="number" id="vs001" value="0" min="0" /></td>
-                            <td><input type="number" id="vs002" value="0" min="0" /></td>
-                            <td><input type="number" id="vs003" value="0" min="0" /></td>
-                            <td><input type="number" id="vs004" value="0" min="0" /></td>
-                        </tr>
-                    </table>
-                    <div>
-                        <button onclick="clearVertical();">全削除</button>
-                        <button onclick="addVertical();">追加</button>
-                </div>
+                    <button onclick="readAllLineSpec();">色設定反映</button>
                 </div>
                 <div class="list_container">
-                    <div>水平ライン</div>
+                    <div class="list_header">水平ライン</div>
                     <div id="hline_list"></div>
-                    <table>
-                        <tr>
-                            <td><input type="color" id="hc000" value="#000000" /></td>
-                            <td><input type="color" id="hc001" value="#000000" /></td>
-                            <td><input type="color" id="hc002" value="#000000" /></td>
-                            <td><input type="color" id="hc003" value="#000000" /></td>
-                            <td><input type="color" id="hc004" value="#000000" /></td>
-                        </tr>
-                        <tr>
-                            <td><input type="number" id="hs000" value="10" min="0" /></td>
-                            <td><input type="number" id="hs001" value="0" min="0" /></td>
-                            <td><input type="number" id="hs002" value="0" min="0" /></td>
-                            <td><input type="number" id="hs003" value="0" min="0" /></td>
-                            <td><input type="number" id="hs004" value="0" min="0" /></td>
-                        </tr>
-                    </table>
-                    <div>
-                        <button onclick="clearHorizontal();">全削除</button>
-                        <button onclick="addHorizontal();">追加</button>
+                    <button onclick="readAllLineSpec();">色設定反映</button>
                 </div>
+            </div>
+        </div>
+        <div id="popup_dialog">
+            <div id="dialog">
+                <div id="dialog_header">
+                    色選択
+                </div>
+                <div id="dialog_content">
+                    <input type="color" id="color_picker" value="#000000" />
+                </div>
+                <div id="dialog_buttons">
+                    <button onclick="colorpicker_ok()">OK</button><button onclick="colorpicker_cancel()">Cancel</button>
                 </div>
             </div>
         </div>
@@ -205,7 +251,7 @@
                             //horizontal
                             var cell_inner_pos=0;
                             for(var j=0; j<cellh.color.length; j++) {
-                                ctx.fillStyle =cellh.color[j];
+                                ctx.fillStyle =color_presets[cellh.color[j]];
                                 ctx.fillRect(centerX - checker_width/2 + xpos, centerY - checker_height/2 + ypos + cell_inner_pos, cell_width, cellh.size[j] * display_scale);
                                 cell_inner_pos += cellh.size[j] * display_scale;
                             }
@@ -213,7 +259,7 @@
                             //vertical
                             var cell_inner_pos=0;
                             for(var j=0; j<cellv.color.length; j++) {
-                                ctx.fillStyle =cellv.color[j];
+                                ctx.fillStyle =color_presets[cellv.color[j]];
                                 ctx.fillRect(centerX - checker_width/2 + xpos + cell_inner_pos, centerY - checker_height/2 + ypos, cellv.size[j] * display_scale, cell_height);
                                 cell_inner_pos+=cellv.size[j] * display_scale;
                             }
@@ -234,7 +280,13 @@
                     var td = document.createElement('td');
                     td.innerHTML = '';
                     for(var j=0; j<checkers_vertical[i].size.length; j++) {
-                        td.innerHTML += "<span class='linespec' style='background:"+checkers_vertical[i].color[j]+"'></span> "+checkers_vertical[i].size[j] + (j < checkers_vertical[i].size.length - 1 ? ', ' : '');
+                        var line="";
+                        line += "<select id='cs_0_"+i+"_"+j+"'>";
+                        for(var k=0; k<color_presets.length; k++) {
+                            line+="<option value='"+color_presets[k]+"'"+(checkers_vertical[i].color[j] === k ? " selected" : "")+">No."+k+"</option>";
+                        }
+                        line += "</select>"+checkers_vertical[i].size[j] + (j < checkers_vertical[i].size.length - 1 ? ', ' : '');
+                        td.innerHTML += line;
                     }
                     tr.appendChild(td);
                     var td = document.createElement('td');
@@ -249,7 +301,13 @@
                     var td = document.createElement('td');
                     td.innerHTML = '';
                     for(var j=0; j<checkers_horizontal[i].size.length; j++) {
-                        td.innerHTML += "<span class='linespec' style='background:"+checkers_horizontal[i].color[j]+"'></span> "+checkers_horizontal[i].size[j] + (j < checkers_horizontal[i].size.length - 1 ? ', ' : '');
+                        var line="";
+                        line += "<select id='cs_1_"+i+"_"+j+"'>";   
+                        for(var k=0; k<color_presets.length; k++) {
+                            line+="<option value='"+color_presets[k]+"'"+(checkers_horizontal[i].color[j] === k ? " selected" : "")+">No."+k+"</option>";
+                        }
+                        line += "</select>"+checkers_horizontal[i].size[j] + (j < checkers_horizontal[i].size.length - 1 ? ', ' : '');
+                        td.innerHTML += line;
                     }
                     tr.appendChild(td);
                     var td = document.createElement('td');
@@ -334,7 +392,66 @@
                 updateLineList();
                 drawCheckerboard();
             }
+            function updateColorPresets() {
+                var color_list = document.getElementById('color_list');
+                color_list.innerHTML = '';
+                for(var i=0; i<color_presets.length; i++) {
+                    var colorDiv = document.createElement('div');
+                    colorDiv.className = 'linespec';
+                    colorDiv.style.backgroundColor = color_presets[i];
+                    colorDiv.onclick = (function(i) {
+                        return function() {
+                            popupColorPicker(i);
+                        };
+                    })(i);
+                    colorDiv.innerHTML = '<span style="color:'+color_presets[i]+'; filter: invert(100%) grayscale(100%) contrast(100);">No.' + i + ': ' + color_presets[i]+"</span>";
+                    color_list.appendChild(colorDiv);
+                }
+            }
+            function popupColorPicker(i){
+                colorpicker_index = i;
+                var dialog = document.getElementById('popup_dialog');
+                dialog.style.display = 'block';
+            }
+            function colorpicker_ok() {
+                var color = document.getElementById('color_picker').value;
+                if(colorpicker_index < 0 || colorpicker_index >= color_presets.length) {
+                    color_presets.push(color);
+                }else{
+                    color_presets[colorpicker_index] = color;
+                }
+                updateColorPresets();
+                drawCheckerboard();
+                document.getElementById('popup_dialog').style.display = 'none';
+            }
+            function colorpicker_cancel() {
+                document.getElementById('popup_dialog').style.display = 'none';
+            }
+            function readAllLineSpec() {
+                for(var i=0; i<checkers_vertical.length; i++) {
+                    for(var j=0; j<checkers_vertical[i].size.length; j++) {
+                        readLineSpec(0, i, j);
+                    }
+                }
+                for(var i=0; i<checkers_horizontal.length; i++) {
+                    for(var j=0; j<checkers_horizontal[i].size.length; j++) {
+                        readLineSpec(1, i, j);
+                    }
+                }
+                drawCheckerboard();
+
+            }
+            function readLineSpec(type, i, j) {
+                if(type === 0) { // vertical
+                    var select = document.getElementById('cs_0_' + i + '_' + j);
+                    checkers_vertical[i].color[j] = select.selectedIndex;
+                } else { // horizontal
+                    var select = document.getElementById('cs_1_' + i + '_' + j);
+                    checkers_horizontal[i].color[j] = select.selectedIndex;
+                }
+            }
             updateLineList();
+            updateColorPresets();
             drawCheckerboard();
         </script>
     </body>
