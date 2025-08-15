@@ -3,15 +3,20 @@
     <head>
         <meta charset="utf-8" />
         <title>チェック柄生成器</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap" rel="stylesheet">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
         <style>
             body{
-                background:#aaaaaa;
+                background:#efefef;
                 padding: 0px;
                 margin: 0px;
-            }
-            div#container{
-                background: #eeeeee;
-                
+                font-family: "M PLUS Rounded 1c", sans-serif;
+                font-weight: 400;
+                font-style: normal;
+                overflow-x: clip;
+                overflow-y: clip;
             }
             div#settings{
                 background: rgba(255,255,255,0.9);
@@ -63,6 +68,8 @@
                 padding: 10px;
                 background: #fff;
                 border: 1px solid #333;
+                overflow-y:scroll;
+                height: 250px;
             }
             div#settings div.tab_container div.active{
                 display: block;
@@ -76,13 +83,15 @@
                 margin:5px;
                 padding:5px 15px;
                 cursor: pointer;
+                background:#eee;
             }
             div#color_list input{
-                width:0px;
-                height:0px;
-                border: 0px;
+                width:20px;
+                height:20px;
+                border: 1px solid #333;
                 padding:0px;
-                margin: 0px;
+                margin:0px;
+                margin-right: 10px;
                 background: none;
             }
             div.line_list{
@@ -150,11 +159,21 @@
                 width: 100%;
                 border-collapse: collapse;
             }
+            @media screen and (max-device-width: 480px) {
+                div#settings{
+                    position: fixed;
+                    width: 100%;
+                    left:0px;
+                    bottom:0px;
+                    font-size:9pt;
+                }
+            }
+
         </style>
         <script>
             var color_presets=["#333333", "#41456f", "#25453d", "#46477d","#8462be","#eeeeee"]
             var lines={"vertical":[], "horizontal":[]}
-            var nrepeat=1;
+            var nrepeat=20;
             var display_scale=1;
             var color_selector_agrs={"type":"", "index":-1, "index2":-1};
             var newline_specs={type:"horizontal", colors:[], widths:[]};
@@ -358,7 +377,6 @@
                 for(var i=0; i<color_presets.length; i++) {
                     var colorDiv = document.createElement('div');
                     colorDiv.className = 'linespec';
-                    colorDiv.style.backgroundColor = color_presets[i];
                     colorDiv.value = i;
                     color_list.appendChild(colorDiv);
                     colorDiv.addEventListener("click",function(ev){
@@ -366,7 +384,6 @@
                     });
                     var colorTxt=document.createElement("span");
                     colorTxt.innerHTML="No."+i;
-                    colorTxt.style="color:"+color_presets[i]+"; filter: invert(100%) grayscale(100%) contrast(100);"
                     var colorInput=document.createElement("input");
                     colorInput.type="color";
                     colorInput.value=color_presets[i];
@@ -403,7 +420,6 @@
             }
             function openChangeColorPresetsDialog(index){
                 var cp=document.getElementById("cp"+index);
-                cp.click();
             }
             function applyChangeColorPreset(index,value){
                 if(index>=0 && index<color_presets.length){
@@ -415,6 +431,8 @@
             }
             function drawCheckerboard(){
                 var canvas = document.getElementById('canvas');
+                canvas.width = document.documentElement.clientWidth;
+                canvas.height = document.documentElement.clientHeight;
                 var ctx = canvas.getContext('2d');
                 var width = canvas.width;
                 var height = canvas.height;
@@ -652,10 +670,9 @@
         </script>
     </head>
     <body>
-        <h1>チェック柄生成器</h1>
         <div id="container">
             <div id="output">
-                <canvas id="canvas" width="600" height="600" style="border:1px solid #333;"></canvas>
+                <canvas id="canvas" width="600" height="600"></canvas>
             </div>
 
             <div id="settings">
@@ -664,14 +681,16 @@
                 </div>
                 <div id="controls">
                     <button>再表示</button>
-                    <select>
-                        <option>10%</option>
-                        <option>25%</option>
-                        <option>50%</option>
-                        <option>75%</option>
-                        <option>100%</option>
-                        <option>200%</option>
-                        <option>400%</option>
+                    <select onchange="display_scale=parseFloat(this.value); drawCheckerboard();">
+                        <option value="0.1">10%</option>
+                        <option value="0.25">25%</option>
+                        <option value="0.5">50%</option>
+                        <option value="0.75">75%</option>
+                        <option value="1" selected>100%</option>
+                        <option value="2">200%</option>
+                        <option value="4">400%</option>
+                        <option value="8">800%</option>
+                        <option value="16">1600%</option>
                     </select>
                 </div>
                 <div class="tab_container">
@@ -719,6 +738,8 @@
                                 <button id="save_button" onclick="saveCurrentSettingsBtnClicked()">現在の設定を保存</button>
                             </div>
                         </fieldset>
+                    </div>
+                      
                 </div>
             </div>
             <div id="color_selector" class="popup_dialog" onblur="closeDialogs()">
