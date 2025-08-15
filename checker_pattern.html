@@ -2,231 +2,438 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>Checker pattern genertor</title>
-        <link rel="stylesheet" href="style.css" />    
-        <script>
-            var checkers_horizontal=[];
-            var checkers_vertical=[];
-            var display_scale=1;
-            var nrepeat=10;
-            var color_presets=["#333333", "#41456f", "#25453d", "#46477d","#8462be","#eeeeee"]
-            var colorpicker_index=-1;
-            checkers_horizontal.push({
-                "size": [10],
-                "color": [1]
-            });
-            checkers_horizontal.push({
-                "size": [4,2,4],
-                "color": [1,5,1]
-            });
-            checkers_horizontal.push({
-                "size": [10],
-                "color": [1]
-            });
-            checkers_horizontal.push({
-                "size": [10],
-                "color": [5]
-            });
-            checkers_horizontal.push({
-                "size": [10],
-                "color": [5]
-            });
-            checkers_horizontal.push({
-                "size": [10],
-                "color": [5]
-            });
-            checkers_horizontal.push({
-                "size": [10],
-                "color": [1]
-            });
-            checkers_vertical.push({
-                "size": [10],
-                "color": [1]
-            });
-            checkers_vertical.push({
-                "size": [10],
-                "color": [5]
-            });
-            checkers_vertical.push({
-                "size": [10],
-                "color": [5]
-            });
-            checkers_vertical.push({
-                "size": [10],
-                "color": [5]
-            });
-            checkers_vertical.push({
-                "size": [10],
-                "color": [1]
-            });
-            checkers_vertical.push({
-                "size": [4,2,4],
-                "color": [1,5,1]
-            });
-            checkers_vertical.push({
-                "size": [10],
-                "color": [1]
-            });
-        </script>
+        <title>チェック柄生成器</title>
         <style>
-            body {
-                font-family: Arial, sans-serif;
-            }
-            .linespec {
-                display: inline-block;
-                width:75px;
-                padding: 4px 4px;
+            body{
+                background:#aaaaaa;
+                padding: 0px;
                 margin: 0px;
-                border:1px solid #333;
-                border-radius: 4px;
-                margin: 5px;
             }
-            table {
+            div#container{
+                background: #eeeeee;
+                
+            }
+            div#settings{
+                background: rgba(255,255,255,0.9);
+                border:1px solid #333333;
+                border-radius: 2px;
+                box-shadow: 0px 0px 10px #333333;
+                position:fixed;
+                right: 50px;
+                bottom: 50px;
+                width: 500px;
+            }
+            div#settings ul{
+                list-style-type: none;
+                padding:0px;
+                margin: 0px;
+                display: flex;
+            }
+            div#settings ul li{
+                padding: 2px 10px;
+                margin: 0px 3px;
+                border-top: 5px solid #bbbbbb;
+                background: #eeeeee;
+                border-radius: 4px 4px 0px 0px;
+                cursor: pointer;
+            }
+            div#settings ul li.active{
+                border-top: 5px solid #ff9100;
+                border-left: 1px solid #ff9100;
+                border-right: 1px solid #ff9100;
+                background: #fff6c7;
+            }
+            div#settings div#settings_header{
+                padding: 5px 10px;
+                margin-bottom: 5px;
+                font-weight: bold;
+                background: #555;
+                color: white;
+            }
+            div#settings div#controls{
+                padding: 10px 10px;
+                display: flex;
+            }
+            div#settings div.tab_container{
+                margin: 5px 20px;
+                margin-bottom: 20px;
+            }
+            div#settings div.tab_container div.tab_content{
+                display: none;
+                padding: 10px;
+                background: #fff;
+                border: 1px solid #333;
+            }
+            div#settings div.tab_container div.active{
+                display: block;
+            }
+            div#color_list{
+                display:flex;
+                flex-wrap: wrap;
+            }
+            div#color_list div.linespec{
+                border-radius:5px;
+                margin:5px;
+                padding:5px 15px;
+                cursor: pointer;
+            }
+            div#color_list input{
+                width:0px;
+                height:0px;
+                border: 0px;
+                padding:0px;
+                margin: 0px;
+                background: none;
+            }
+            div.line_list{
+                margin: 5px 0px;
+            }
+            div.line_list table{
+                margin: 5px 15px;
                 border-collapse: collapse;
             }
-            td {
+            div.line_list table tr th, div.line_list table tr td{
                 padding: 5px;
+                border: 1px solid #333;
+                text-align: center;
             }
-            input[type="number"] {
-                width: 30px;
-                padding: 4px 10px;
-                margin: 0px;
-                border-radius: 4px;
+            div.line_list table tr td span{
+                filter: invert(100%) grayscale(100%) contrast(100);
             }
-            input[type="color"] {
-                width: 20px;
-                height: 20px;
-                padding:0px;
-                border:1px solid #333;
-                background: none;
-                border-radius: 5px;
-                margin:0px;
+            div.line_list table tr td input{
+                width: 50px;
+                border:none;
+                padding: 0px;
             }
-            div.list_container {
-                margin: 10px;
-                padding: 10px;
-                width: 350px;
-                border: 1px solid #ccc;
-                border-radius: 8px;
+            div.line_list table tr td input[type="number"]:focus{
+                outline: none;
             }
-            div.list_container .list_header {
-                font-weight: bold;
-                margin: -10px;
-                margin-bottom: 10px;
-                padding: 10px;
-                border-bottom: 2px solid #18106c;
-            }
-            div#popup_dialog {
+            div.popup_dialog{
                 position: fixed;
-                background: rgba(0,0,0,0.95);
-                opacity: 0.9;
-                display: block;
-                left: 0px;
-                top: 0px;
-                width: 100%;
-                height: 100%;
+                border: 1px solid #333;
+                border-radius: 3px;
+                box-shadow: 0px 0px 10px #333;
+                padding: 3px;
+                background: #fff;;
                 display: none;
             }
-            div#popup_dialog div#dialog{
-                position:fixed;
-                left:100px;
-                top: 100px;
-                width:150px;
-                background: #eeeeee;
+            div.popup_dialog.active{
+                display: block;
+            }
+            div#color_selector div#color_selector_list{
+                display: flex;
+                flex-wrap: wrap;
+                margin-bottom: 4px;
+            }
+            div#color_selector div#color_selector_list div.linespec{
+                border-radius:2px;
+                margin:2px;
+                padding:2px 4px;
+                cursor: pointer;
                 border:1px solid #333;
-                border-radius: 3px;
-                box-shadow: 2px 2px 5px rgba(0,0,0,0.9);
-                padding: 5px;
             }
-            div#popup_dialog div#dialog div#dialog_header {
-                font-weight: bold;
-                margin-bottom: 10px;
+            div#color_selector div#color_selector_controls{
+                text-align: right;
             }
-            div#popup_dialog div#dialog div#dialog_content input[type="color"] {
-                width: 30%;
-                height: 30px;
+            div#color_selector div#color_selector_list button{
+                margin:0px;
+            }
+            fieldset{
+                border: none;
                 padding: 0px;
-                border: 1px solid #333;
-                background: none;
-                border-radius: 5px;
+                margin: 0px;
             }
-            div#popup_dialog div#dialog div#dialog_buttons button{
-                padding: 5px 10px;
-                margin: 5px;
-                border: 1px solid #333;;
-                border-radius: 4px;
-            }            
+            div#save_list{
+                padding:5px;
+            }
+            div#save_list table{
+                width: 100%;
+                border-collapse: collapse;
+            }
         </style>
-    </head>
-    <body>
-        <h1>チェッカー柄生成器</h1>
-        <div id="container">
-            <canvas id="canvas" width="600" height="600" style="border:1px solid #333;"></canvas>
-            <div id="form" style="display: flex; flex-wrap: wrap;">
-                <div class="list_container">
-                    <div class="list_header">基本設定</div>
-                    <table>
-                        <tr>
-                            <th>表示サイズ</th>
-                            <td><input type="number" id="display_scale" value="1" min="0.1" step="0.1" style="width:50px;" onchange="display_scale=parseFloat(this.value); drawCheckerboard();" /></td>
-                        </tr>
-                        <tr>
-                            <th>繰り返し数</th>
-                            <td><input type="number" id="nrepeat" value="10" min="1" step="1" style="width:50px;"  onchange="nrepeat=parseInt(this.value); drawCheckerboard();" /></td>
-                        </tr>
-                        <tr>
-                            <td colspan="2">
-                                <button onclick="drawCheckerboard();">表示更新</button>
-                            </td>
-                        </tr>
-                    </table>
-                    <div id="color_list"></div>
-                </div>
-                <div class="list_container">
-                    <div class="list_header">垂直ライン</div>
-                    <div id="vline_list"></div>
-                    <button onclick="readAllLineSpec();">色設定反映</button>
-                </div>
-                <div class="list_container">
-                    <div class="list_header">水平ライン</div>
-                    <div id="hline_list"></div>
-                    <button onclick="readAllLineSpec();">色設定反映</button>
-                </div>
-            </div>
-        </div>
-        <div id="popup_dialog">
-            <div id="dialog">
-                <div id="dialog_header">
-                    色選択
-                </div>
-                <div id="dialog_content">
-                    <input type="color" id="color_picker" value="#000000" />
-                </div>
-                <div id="dialog_buttons">
-                    <button onclick="colorpicker_ok()">OK</button><button onclick="colorpicker_cancel()">Cancel</button>
-                </div>
-            </div>
-        </div>
         <script>
-            var canvas = document.getElementById('canvas');
-            var ctx = canvas.getContext('2d');
-            var centerX = canvas.width / 2;
-            var centerY = canvas.height / 2;
-            function drawCheckerboard() {
+            var color_presets=["#333333", "#41456f", "#25453d", "#46477d","#8462be","#eeeeee"]
+            var lines={"vertical":[], "horizontal":[]}
+            var nrepeat=1;
+            var display_scale=1;
+            var color_selector_agrs={"type":"", "index":-1, "index2":-1};
+            var newline_specs={type:"horizontal", colors:[], widths:[]};
+            var selected_line_index={"horizontal":0, "vertical":0};
+            var savedConfigs = {};
+            lines["horizontal"].push({
+                "w": [10],
+                "c": [1]
+            });
+            lines["horizontal"].push({
+                "w": [4,2,4],
+                "c": [1,5,1]
+            });
+            lines["horizontal"].push({
+                "w": [10],
+                "c": [1]
+            });
+            lines["horizontal"].push({
+                "w": [10],
+                "c": [5]
+            });
+            lines["horizontal"].push({
+                "w": [10],
+                "c": [5]
+            });
+            lines["horizontal"].push({
+                "w": [10],
+                "c": [5]
+            });
+            lines["horizontal"].push({
+                "w": [10],
+                "c": [1]
+            });
+            lines["vertical"].push({
+                "w": [10],
+                "c": [1]
+            });
+            lines["vertical"].push({
+                "w": [10],
+                "c": [5]
+            });
+            lines["vertical"].push({
+                "w": [10],
+                "c": [5]
+            });
+            lines["vertical"].push({
+                "w": [10],
+                "c": [5]
+            });
+            lines["vertical"].push({
+                "w": [10],
+                "c": [1]
+            });
+            lines["vertical"].push({
+                "w": [4,2,4],
+                "c": [1,5,1]
+            });
+            lines["vertical"].push({
+                "w": [10],
+                "c": [1]
+            });
+
+            function addLine(type, colors, widths){
+                lines[type].push({"c":colors,"w":widths});
+            }
+            function modifyLine(type, index, colors, widths){
+                if(index<0 || index>=lines[type].length){
+                    return;
+                }
+                lines[type][index]["c"]=colors;
+                lines[type][index]["w"]=widths;
+            }
+            function showLineLists(){
+                cleanupLines();
+                types=["horizontal","vertical"];
+                for(var i=0;i<types.length;i++){
+                    var type=types[i];
+                    var resultDiv=document.getElementById(type+"_lines");
+                    resultDiv.innerHTML="";
+                    var linesTable=document.createElement("table");
+                    var linesRow=document.createElement("tr");
+                    var th=document.createElement("th");
+                    linesRow.appendChild(th);
+                    th=document.createElement("th");
+                    th.innerHTML="番号";
+                    th.width="75px";
+                    linesRow.appendChild(th);
+                    th=document.createElement("th");
+                    th.innerHTML="色";
+                    th.width="75px";
+                    linesRow.appendChild(th);
+                    th=document.createElement("th");
+                    th.innerHTML="幅";
+                    th.width="75px";
+                    linesRow.appendChild(th);
+                    linesTable.appendChild(linesRow);
+                    for(var j=0;j<lines[type].length;j++){
+                        var line=lines[type][j];
+                        for(var k=0;k<line.c.length;k++){
+                            var lineRow=document.createElement("tr");
+                            var td=document.createElement("td");
+                            if(k==0){
+                                var rb=document.createElement("input");
+                                rb.type="radio";
+                                rb.name="rb_"+type;
+                                rb.value=j;
+                                td.rowSpan=line.c.length;
+                                rb.ctype=type;
+                                if(selected_line_index[type]==j){
+                                    rb.checked=true;
+                                }
+                                rb.addEventListener("change",function(ev){
+                                    selected_line_index[this.ctype]=document.querySelector("input[name='rb_"+this.ctype+"']:checked").value;
+                                 });
+                                td.appendChild(rb);
+                                lineRow.appendChild(td);
+                                td=document.createElement("td");
+                                td.innerHTML=j;
+                                td.rowSpan=line.c.length;
+                                lineRow.appendChild(td);
+                                td=document.createElement("td");
+                            }
+                            td.style.backgroundColor=color_presets[line.c[k]];
+                            td.style.cursor="pointer";
+                            td.className="linecolor_cell"
+                            var span=document.createElement("span");
+                            span.style.color=color_presets[line.c[k]];
+                            span.innerHTML="No. "+line.c[k];
+                            td.ctype=type;
+                            td.cindex1=j;
+                            td.cindex2=k;
+                            td.addEventListener("click",function(ev){
+                                color_selector_agrs.type=this.ctype;
+                                color_selector_agrs.index1=this.cindex1;
+                                color_selector_agrs.index2=this.cindex2;
+                                var colorSelector=document.getElementById("color_selector");
+                                colorSelector.classList.add("active");
+                                colorSelector.style.left=(ev.clientX+10)+"px";
+                                colorSelector.style.top=(ev.clientY+10)+"px";
+                            });
+                            td.appendChild(span);
+                            lineRow.appendChild(td);
+                            td=document.createElement("td");
+                            td.innerHTML=line.w[k];
+                            td.ctype=type;
+                            td.cindex1=j;
+                            td.cindex2=k;
+                            td.style.cursor="pointer";
+                            td.addEventListener("click",function(ev){
+                                var input=document.createElement("input");
+                                input.type="number";
+                                input.value=this.innerHTML;
+                                input.style.width="50px";
+                                input.addEventListener("change",function(ev){
+                                    var type=this.parentElement.ctype;
+                                    var index1=this.parentElement.cindex1;
+                                    var index2=this.parentElement.cindex2;
+                                    lines[type][index1].w[index2]=parseInt(this.value);
+                                    showLineLists();
+                                    drawCheckerboard();
+                                });
+                                input.addEventListener("blur",function(ev){
+                                    this.parentElement.innerHTML=this.value;
+                                    drawCheckerboard();
+                                });
+                                this.innerHTML="";
+                                this.appendChild(input);
+                                input.focus();
+                            });
+                            lineRow.appendChild(td);
+                            linesTable.appendChild(lineRow);
+                        }
+
+                    }
+                    resultDiv.appendChild(linesTable);
+                }
+            }
+            function switch_tab(index){
+                var headers=document.querySelectorAll(".tab_header");
+                for(var i=0;i<headers.length;i++){
+                    if(i==index){
+                        headers[i].classList.add("active");
+                    }else{
+                        headers[i].classList.remove("active");
+                    }
+                }
+                var contents=document.querySelectorAll(".tab_content");
+                for(var i=0;i<contents.length;i++){
+                    if(i==index){
+                        contents[i].classList.add("active");
+                    }else{
+                        contents[i].classList.remove("active");
+                    }
+                }
+            }
+            function updateColorPresets() {
+                var color_list = document.getElementById('color_list');
+                var color_selector_list = document.getElementById('color_selector_list');
+                color_list.innerHTML = '';
+                color_selector_list.innerHTML = '';
+                for(var i=0; i<color_presets.length; i++) {
+                    var colorDiv = document.createElement('div');
+                    colorDiv.className = 'linespec';
+                    colorDiv.style.backgroundColor = color_presets[i];
+                    colorDiv.value = i;
+                    color_list.appendChild(colorDiv);
+                    colorDiv.addEventListener("click",function(ev){
+                        openChangeColorPresetsDialog(this.value);
+                    });
+                    var colorTxt=document.createElement("span");
+                    colorTxt.innerHTML="No."+i;
+                    colorTxt.style="color:"+color_presets[i]+"; filter: invert(100%) grayscale(100%) contrast(100);"
+                    var colorInput=document.createElement("input");
+                    colorInput.type="color";
+                    colorInput.value=color_presets[i];
+                    colorInput.id="cp"+i;
+                    colorInput.addEventListener("change",function(ev){
+                        applyChangeColorPreset(parseInt(this.id.replace("cp","")), this.value);
+                    });
+                    colorDiv.appendChild(colorInput);
+                    colorDiv.appendChild(colorTxt);
+
+                    colorDiv = document.createElement('div');
+                    colorTxt = document.createElement("span");
+                    colorTxt.innerHTML="No."+i;
+                    colorTxt.style="color:"+color_presets[i]+"; filter: invert(100%) grayscale(100%) contrast(100);"
+                    colorDiv.appendChild(colorTxt);
+                    colorDiv.className = 'linespec';
+                    colorDiv.value = i;
+                    color_selector_list.appendChild(colorDiv);
+                    colorDiv.style.backgroundColor = color_presets[i];
+                    colorDiv.addEventListener("click",function(ev){
+                        applyColorChange(this.value);
+                    });
+                    color_selector_list.appendChild(colorDiv);
+                }
+            }
+            function applyColorChange(value){
+                type=color_selector_agrs.type;
+                index1=color_selector_agrs.index1;
+                index2=color_selector_agrs.index2;
+                lines[type][index1].c[index2]=value;
+                document.getElementById("color_selector").classList.remove("active");
+                showLineLists();
+                drawCheckerboard();
+            }
+            function openChangeColorPresetsDialog(index){
+                var cp=document.getElementById("cp"+index);
+                cp.click();
+            }
+            function applyChangeColorPreset(index,value){
+                if(index>=0 && index<color_presets.length){
+                    color_presets[index]=value;
+                }else{
+                    color_presets.push(value);
+                }
+                updateColorPresets();
+            }
+            function drawCheckerboard(){
+                var canvas = document.getElementById('canvas');
+                var ctx = canvas.getContext('2d');
+                var width = canvas.width;
+                var height = canvas.height;
+                var centerX = canvas.width / 2;
+                var centerY = canvas.height / 2;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#FFFFFF';
                 xpos=0;
                 ypos=0;
                 checker_width = 0;
                 checker_height = 0;
-                for(var i=0; i<checkers_horizontal.length; i++) {
-                    for(var j=0; j<checkers_horizontal[i].size.length; j++) {
-                        checker_height += checkers_horizontal[i].size[j] * nrepeat * display_scale;
+                for(var i=0; i<lines["horizontal"].length; i++) {
+                    for(var j=0; j<lines["horizontal"][i].w.length; j++) {
+                        checker_height += lines["horizontal"][i].w[j] * nrepeat * display_scale;
                     }
                 }
-                for(var i=0; i<checkers_vertical.length; i++) {
-                    for(var j=0; j<checkers_vertical[i].size.length; j++) {
-                        checker_width += checkers_vertical[i].size[j] * nrepeat * display_scale;
+                for(var i=0; i<lines["vertical"].length; i++) {
+                    for(var j=0; j<lines["vertical"][i].w.length; j++) {
+                        checker_width += lines["vertical"][i].w[j] * nrepeat * display_scale;
                     }
                 }
                 if(checker_width === 0 || checker_height === 0) {
@@ -234,228 +441,291 @@
                 }
                 var cell_height=0;
                 var cell_width=0;
-                for(var ix=0; ix<checkers_horizontal.length*nrepeat; ix++) {
+                for(var ix=0; ix<lines["horizontal"].length*nrepeat; ix++) {
                     xpos=0;
-                    for(var iy=0; iy<checkers_vertical.length*nrepeat; iy++) {
-                        cellh=checkers_horizontal[ix%checkers_horizontal.length];
-                        cellv=checkers_vertical[iy%checkers_vertical.length];
+                    for(var iy=0; iy<lines["vertical"].length*nrepeat; iy++) {
+                        cellh=lines["horizontal"][ix%lines["horizontal"].length];
+                        cellv=lines["vertical"][iy%lines["vertical"].length];
                         cell_height = 0;
                         cell_width = 0;
-                        for(var j=0; j<cellh.size.length; j++) {
-                            cell_height += cellh.size[j] * display_scale;
+                        for(var j=0; j<cellh.w.length; j++) {
+                            cell_height += cellh.w[j] * display_scale;
                         }
-                        for(var j=0; j<cellv.size.length; j++) {
-                            cell_width += cellv.size[j] * display_scale;
+                        for(var j=0; j<cellv.w.length; j++) {
+                            cell_width += cellv.w[j] * display_scale;
                         }
                         if((ix+iy) % 2 === 0) {
                             //horizontal
                             var cell_inner_pos=0;
-                            for(var j=0; j<cellh.color.length; j++) {
-                                ctx.fillStyle =color_presets[cellh.color[j]];
-                                ctx.fillRect(centerX - checker_width/2 + xpos, centerY - checker_height/2 + ypos + cell_inner_pos, cell_width, cellh.size[j] * display_scale);
-                                cell_inner_pos += cellh.size[j] * display_scale;
+                            for(var j=0; j<cellh.c.length; j++) {
+                                ctx.fillStyle =color_presets[cellh.c[j]];
+                                ctx.fillRect(centerX - checker_width/2 + xpos, centerY - checker_height/2 + ypos + cell_inner_pos, cell_width, cellh.w[j] * display_scale);
+                                cell_inner_pos += cellh.w[j] * display_scale;
                             }
                         }else{
                             //vertical
                             var cell_inner_pos=0;
-                            for(var j=0; j<cellv.color.length; j++) {
-                                ctx.fillStyle =color_presets[cellv.color[j]];
-                                ctx.fillRect(centerX - checker_width/2 + xpos + cell_inner_pos, centerY - checker_height/2 + ypos, cellv.size[j] * display_scale, cell_height);
-                                cell_inner_pos+=cellv.size[j] * display_scale;
+                            for(var j=0; j<cellv.c.length; j++) {
+                                ctx.fillStyle =color_presets[cellv.c[j]];
+                                ctx.fillRect(centerX - checker_width/2 + xpos + cell_inner_pos, centerY - checker_height/2 + ypos, cellv.w[j] * display_scale, cell_height);
+                                cell_inner_pos+=cellv.w[j] * display_scale;
                             }
                         }
                         xpos+=cell_width;
                     }
                     ypos+=cell_height;
                 }
-            } 
-            function updateLineList() {
-                var vline_list = document.getElementById('vline_list');
-                var hline_list = document.getElementById('hline_list');
-                vline_list.innerHTML = '';
-                hline_list.innerHTML = '';
-                var tbl = document.createElement('table');
-                for(var i=0; i<checkers_vertical.length; i++) {
-                    var tr = document.createElement('tr');
-                    var td = document.createElement('td');
-                    td.innerHTML = '';
-                    for(var j=0; j<checkers_vertical[i].size.length; j++) {
-                        var line="";
-                        line += "<select id='cs_0_"+i+"_"+j+"'>";
-                        for(var k=0; k<color_presets.length; k++) {
-                            line+="<option value='"+color_presets[k]+"'"+(checkers_vertical[i].color[j] === k ? " selected" : "")+">No."+k+"</option>";
+            }
+            function closeDialogs(){
+                var colorSelector=document.getElementById("color_selector");
+                if(colorSelector.classList.contains("active")){
+                    colorSelector.classList.remove("active");
+                }
+            }
+            function addNewLine(type){
+                var colors=[0];
+                var widths=[10];
+                lines[type].push({"c":colors,"w":widths});
+                showLineLists();
+                drawCheckerboard();
+            }
+            function addNewSubLine(type){
+                var index=document.querySelector("input[name='rb_"+type+"']:checked").value;
+                if(index>=0 && index<lines[type].length){
+                    lines[type][index].c.push(0);
+                    lines[type][index].w.push(10);
+                }
+                showLineLists();
+                drawCheckerboard();
+            }
+            function cleanupLines(){
+                //remove lines with empty colors or widths
+                //also remove sublines with zero width
+                new_list={"horizontal":[], "vertical":[]};
+                for(var type in lines){
+                    for(var i=0;i<lines[type].length;i++){
+                        var temp_widths=[];
+                        var temp_colors=[];
+                        var line=lines[type][i];
+                        for(var j=0;j<line.c.length;j++){
+                            if(line.w[j]>0){
+                                temp_colors.push(line.c[j]);
+                                temp_widths.push(line.w[j]);
+                            }
                         }
-                        line += "</select>"+checkers_vertical[i].size[j] + (j < checkers_vertical[i].size.length - 1 ? ', ' : '');
-                        td.innerHTML += line;
-                    }
-                    tr.appendChild(td);
-                    var td = document.createElement('td');
-                    td.innerHTML += " <button onclick='moveItem(0,"+i+",-1)'>▲</button> <button onclick='moveItem(0,"+i+",1)'>▼</button> <button onclick='deleteItem(0,"+i+")'>X</button>";
-                    tr.appendChild(td);
-                    tbl.appendChild(tr);
-                }
-                vline_list.appendChild(tbl);
-                var tbl = document.createElement('table');
-                for(var i=0; i<checkers_horizontal.length; i++) {
-                    var tr = document.createElement('tr');
-                    var td = document.createElement('td');
-                    td.innerHTML = '';
-                    for(var j=0; j<checkers_horizontal[i].size.length; j++) {
-                        var line="";
-                        line += "<select id='cs_1_"+i+"_"+j+"'>";   
-                        for(var k=0; k<color_presets.length; k++) {
-                            line+="<option value='"+color_presets[k]+"'"+(checkers_horizontal[i].color[j] === k ? " selected" : "")+">No."+k+"</option>";
+                        if(temp_colors.length>0 && temp_widths.length>0){
+                            new_list[type].push({"c":temp_colors, "w":temp_widths});
                         }
-                        line += "</select>"+checkers_horizontal[i].size[j] + (j < checkers_horizontal[i].size.length - 1 ? ', ' : '');
-                        td.innerHTML += line;
                     }
-                    tr.appendChild(td);
-                    var td = document.createElement('td');
-                    td.innerHTML += " <button onclick='moveItem(1,"+i+",-1)'>▲</button> <button onclick='moveItem(1,"+i+",1)'>▼</button> <button onclick='deleteItem(1,"+i+")'>X</button>";
-                    tr.appendChild(td);
-                    tbl.appendChild(tr);
                 }
-                hline_list.appendChild(tbl);
+                lines=new_list;
             }
-            function addVertical(){
-                var colors = [document.getElementById('vc000').value, document.getElementById('vc001').value, document.getElementById('vc002').value, document.getElementById('vc003').value, document.getElementById('vc004').value];
-                var sizes = [parseInt(document.getElementById('vs000').value), parseInt(document.getElementById('vs001').value), parseInt(document.getElementById('vs002').value), parseInt(document.getElementById('vs003').value), parseInt(document.getElementById('vs004').value)];
-                var filtered_colors=[];
-                var filtered_sizes=[];
-                for(var i=0; i<colors.length; i++) {
-                    if(isNaN(sizes[i]) || sizes[i] <= 0) {
-                        continue;
-                    }
-                    filtered_colors.push(colors[i]);
-                    filtered_sizes.push(sizes[i]);
+            function removeSubLine(type, index1, index2){
+                if(index1<0 || index1>=lines[type].length || index2<0 || index2>=lines[type][index1].c.length){
+                    return;
                 }
-                if(filtered_colors.length > 0 || filtered_sizes.length > 0) {
-                    checkers_vertical.push({
-                        'size': filtered_sizes,
-                        'color': filtered_colors
-                    });
+                lines[type][index1].c.splice(index2, 1);
+                lines[type][index1].w.splice(index2, 1);
+                if(lines[type][index1].c.length === 0){
+                    removeLine(type, index1);
                 }
-                updateLineList();
+                showLineLists();
                 drawCheckerboard();
             }
-            function clearVertical() {
-                checkers_vertical = [];
-                updateLineList();
-            }
-            
-            function addHorizontal(){
-                var colors = [document.getElementById('hc000').value, document.getElementById('hc001').value, document.getElementById('hc002').value, document.getElementById('hc003').value, document.getElementById('hc004').value];
-                var sizes = [parseInt(document.getElementById('hs000').value), parseInt(document.getElementById('hs001').value), parseInt(document.getElementById('hs002').value), parseInt(document.getElementById('hs003').value), parseInt(document.getElementById('hs004').value)];
-                var filtered_colors=[];
-                var filtered_sizes=[];
-                for(var i=0; i<colors.length; i++) {
-                    if(isNaN(sizes[i]) || sizes[i] <= 0) {
-                        continue;
-                    }
-                    filtered_colors.push(colors[i]);
-                    filtered_sizes.push(sizes[i]);
+            function removeLine(type, index){
+                if(index<0 || index>=lines[type].length){
+                    return;
                 }
-                if(filtered_colors.length > 0 || filtered_sizes.length > 0) {
-                    checkers_horizontal.push({
-                        'size': filtered_sizes,
-                        'color': filtered_colors
-                    });
-                }
-                updateLineList();
+                lines[type].splice(index, 1);
+                showLineLists();
                 drawCheckerboard();
             }
-            function clearHorizontal() {
-                checkers_horizontal = [];
-                updateLineList();
-            }
-            function moveItem(type, index, direction) {
-                if(type === 0) { // vertical
-                    if(index + direction >= 0 && index + direction < checkers_vertical.length) {
-                        var item = checkers_vertical.splice(index, 1)[0];
-                        checkers_vertical.splice(index + direction, 0, item);
-                    }
-                } else { // horizontal
-                    if(index + direction >= 0 && index + direction < checkers_horizontal.length) {
-                        var item = checkers_horizontal.splice(index, 1)[0];
-                        checkers_horizontal.splice(index + direction, 0, item);
-                    }
+            function moveLine(type, direction){
+                var from_index=document.querySelector("input[name='rb_"+type+"']:checked").value;
+                from_index=parseInt(from_index);
+                to_index=from_index+direction;
+                if(to_index<0 || to_index>=lines[type].length){
+                    return;
                 }
-                updateLineList();
+                //swap lines
+                var temp=lines[type][from_index];
+                lines[type][from_index]=lines[type][to_index];
+                lines[type][to_index]=temp;
+                selected_line_index[type]=to_index;
+                showLineLists();
                 drawCheckerboard();
             }
-            function deleteItem(type, index) {
-                if(type === 0) { // vertical
-                    checkers_vertical.splice(index, 1);
-                } else { // horizontal
-                    checkers_horizontal.splice(index, 1);
-                }
-                updateLineList();
-                drawCheckerboard();
+            function makeCurrentConfigJSON(save_name){
+                var config = {
+                    "save_name": save_name,
+                    "color_presets": color_presets,
+                    "lines": lines,
+                    "nrepeat": nrepeat,
+                    "display_scale": display_scale
+                };
+                return config;
             }
-            function updateColorPresets() {
-                var color_list = document.getElementById('color_list');
-                color_list.innerHTML = '';
-                for(var i=0; i<color_presets.length; i++) {
-                    var colorDiv = document.createElement('div');
-                    colorDiv.className = 'linespec';
-                    colorDiv.style.backgroundColor = color_presets[i];
-                    colorDiv.value = i;
-                    colorDiv.addEventListener('click', function(event) {
-                        colorpicker_index = this.value;
-                        var dialog_window = document.getElementById('dialog');
-                        var dialog = document.getElementById('popup_dialog');
-                        dialog_window.style.position = 'absolute';
-                        dialog_window.style.left=event.clientX+"px";
-                        dialog_window.style.top=event.clientY+"px";
-                        var color_picker = document.getElementById('color_picker');
-                        color_picker.value = color_presets[this.value];
-                        dialog.style.display = 'block';
-                        event.stopPropagation();
-                    });
-                    colorDiv.innerHTML = '<span style="color:'+color_presets[i]+'; filter: invert(100%) grayscale(100%) contrast(100);">No.' + i + ': ' + color_presets[i]+"</span>";
-                    color_list.appendChild(colorDiv);
-                }
-            }
-            function colorpicker_ok() {
-                var color = document.getElementById('color_picker').value;
-                if(colorpicker_index < 0 || colorpicker_index >= color_presets.length) {
-                    color_presets.push(color);
+            function loadLocalStorage(){
+                savedConfigs = JSON.parse(localStorage.getItem("checker_pattern_configs") || "[]");
+                var saveList = document.getElementById("save_list");
+                saveList.innerHTML = '';
+                savedItemNames = Object.keys(savedConfigs);
+                if(savedItemNames.length === 0){
+                    saveList.innerHTML = "<div>保存された設定はありません。</div>";
                 }else{
-                    color_presets[colorpicker_index] = color;
+                    var table = document.createElement("table");
+                    for(var i=0; i<savedItemNames.length; i++){
+                        var row = document.createElement("tr");
+                        var cell = document.createElement("td");
+                        cell.innerHTML = savedItemNames[i];
+                        row.appendChild(cell);
+                        cell = document.createElement("td");
+                        var loadBtn = document.createElement("button");
+                        loadBtn.innerHTML = "読込";
+                        var delBtn = document.createElement("button");
+                        delBtn.innerHTML = "削除";
+                        delBtn.target = savedItemNames[i];
+                        delBtn.addEventListener("click", function(ev){
+                            removeSavedConfig(this.target);
+                        });
+                        loadBtn.target = savedItemNames[i];
+                        loadBtn.addEventListener("click", function(ev){
+                            loadConfig(this.target);
+                        });
+                        var saveBtn=document.createElement("button");
+                        saveBtn.innerHTML = "上書保存";
+                        saveBtn.target = savedItemNames[i];
+                        saveBtn.addEventListener("click", function(ev){
+                            saveCurrentSettingsAs(this.target);
+                        });
+                        cell.appendChild(loadBtn);
+                        cell.appendChild(saveBtn);
+                        cell.appendChild(delBtn);
+                        cell.width = "250px";
+                        row.appendChild(cell);
+                        table.appendChild(row);
+                    }
+                    saveList.appendChild(table);
                 }
+            }
+            function loadConfig(save_name){
+                if(savedConfigs[save_name]){
+                    color_presets = savedConfigs[save_name].color_presets;
+                    lines = savedConfigs[save_name].lines;
+                    nrepeat = savedConfigs[save_name].nrepeat;
+                    display_scale = savedConfigs[save_name].display_scale;
+                    updateColorPresets();
+                    showLineLists();
+                    drawCheckerboard();
+                }else{
+                    alert("指定された設定は存在しません。");
+                }
+            }
+            function removeSavedConfig(save_name){
+                delete savedConfigs[save_name];
+                localStorage.setItem("checker_pattern_configs", JSON.stringify(savedConfigs));
+                loadLocalStorage();
+            }
+            function saveCurrentSettingsAs(save_name){
+                savedConfigs[save_name] = makeCurrentConfigJSON(save_name);
+                localStorage.setItem("checker_pattern_configs", JSON.stringify(savedConfigs));
+                loadLocalStorage();
+            }
+            function saveCurrentSettingsBtnClicked(){
+                var saveNameInput = document.getElementById("save_name");
+                var saveName = saveNameInput.value.trim();
+                saveCurrentSettingsAs(saveName);
+                saveNameInput.value = "";
+            }
+            document.addEventListener("DOMContentLoaded", function(ev){
                 updateColorPresets();
+                showLineLists();
                 drawCheckerboard();
-                document.getElementById('popup_dialog').style.display = 'none';
-            }
-            function colorpicker_cancel() {
-                document.getElementById('popup_dialog').style.display = 'none';
-            }
-            function readAllLineSpec() {
-                for(var i=0; i<checkers_vertical.length; i++) {
-                    for(var j=0; j<checkers_vertical[i].size.length; j++) {
-                        readLineSpec(0, i, j);
+                loadLocalStorage();
+                document.getElementById("container").addEventListener("click", function(ev){
+                    if(!ev.target.closest("#color_selector") && !ev.target.closest(".linecolor_cell")){
+                        closeDialogs();
                     }
-                }
-                for(var i=0; i<checkers_horizontal.length; i++) {
-                    for(var j=0; j<checkers_horizontal[i].size.length; j++) {
-                        readLineSpec(1, i, j);
-                    }
-                }
-                drawCheckerboard();
+                });
+            });
 
-            }
-            function readLineSpec(type, i, j) {
-                if(type === 0) { // vertical
-                    var select = document.getElementById('cs_0_' + i + '_' + j);
-                    checkers_vertical[i].color[j] = select.selectedIndex;
-                } else { // horizontal
-                    var select = document.getElementById('cs_1_' + i + '_' + j);
-                    checkers_horizontal[i].color[j] = select.selectedIndex;
-                }
-            }
-            updateLineList();
-            updateColorPresets();
-            drawCheckerboard();
         </script>
+    </head>
+    <body>
+        <h1>チェック柄生成器</h1>
+        <div id="container">
+            <div id="output">
+                <canvas id="canvas" width="600" height="600" style="border:1px solid #333;"></canvas>
+            </div>
+
+            <div id="settings">
+                <div id="settings_header">
+                    設定
+                </div>
+                <div id="controls">
+                    <button>再表示</button>
+                    <select>
+                        <option>10%</option>
+                        <option>25%</option>
+                        <option>50%</option>
+                        <option>75%</option>
+                        <option>100%</option>
+                        <option>200%</option>
+                        <option>400%</option>
+                    </select>
+                </div>
+                <div class="tab_container">
+                    <ul>
+                        <li class="tab_header active" onclick="switch_tab(0)">色</li>
+                        <li class="tab_header" onclick="switch_tab(1)">横ライン</li>
+                        <li class="tab_header" onclick="switch_tab(2)">縦ライン</li>
+                        <li class="tab_header" onclick="switch_tab(3)">保存</li>
+                    </ul>
+                    <div class="tab_content active">
+                        <fieldset>
+                            <div id="color_list">
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="tab_content">
+                        <fieldset>
+                            <div id="horizontal_lines" class="line_list">
+                            </div>
+                            <div id="hline_controls">
+                                <button onclick="moveLine('horizontal',-1)"">▲</button>
+                                <button onclick="moveLine('horizontal',+1)">▼</button>
+                                <button onclick="addNewLine('horizontal')">新しいラインを追加</button>
+                                <button onclick="addNewSubLine('horizontal')">新しいサブラインを追加</button>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="tab_content">
+                        <fieldset>
+                            <div id="vertical_lines" class="line_list">
+                            </div>
+                            <div id="vline_controls">
+                                <button onclick="moveLine('vertical',-1)"">▲</button>
+                                <button onclick="moveLine('vertical',1)">▼</button>
+                                <button onclick="addNewLine('vertical')">新しいラインを追加</button>
+                                <button onclick="addNewSubLine('vertical')">新しいサブラインを追加</button>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="tab_content">
+                        <fieldset>
+                            <div id="save_list"></div>
+                            <div id="save_controls">
+                                <input type="text" id="save_name" placeholder="保存名" />
+                                <button id="save_button" onclick="saveCurrentSettingsBtnClicked()">現在の設定を保存</button>
+                            </div>
+                        </fieldset>
+                </div>
+            </div>
+            <div id="color_selector" class="popup_dialog" onblur="closeDialogs()">
+                <div id="color_selector_list"></div>
+                <div id="color_selector_controls">
+                    <button onclick="document.getElementById('color_selector').classList.remove('active');">閉じる</button>
+            </div>
+        </div>
     </body>
 </html>
