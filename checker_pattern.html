@@ -50,10 +50,10 @@
             }
             div#settings div#settings_header{
                 padding: 5px 10px;
-                margin-bottom: 5px;
                 font-weight: bold;
                 background: #555;
                 color: white;
+                cursor: pointer;
             }
             div#settings div#controls{
                 padding: 10px 10px;
@@ -116,6 +116,9 @@
             }
             div.line_list table tr td input[type="number"]:focus{
                 outline: none;
+            }
+            div#color_selector{
+                width: 200px;
             }
             div.popup_dialog{
                 position: fixed;
@@ -311,8 +314,19 @@
                                 color_selector_agrs.index2=this.cindex2;
                                 var colorSelector=document.getElementById("color_selector");
                                 colorSelector.classList.add("active");
-                                colorSelector.style.left=(ev.clientX+10)+"px";
-                                colorSelector.style.top=(ev.clientY+10)+"px";
+                                var tgt_left=(ev.clientX+10);
+                                var tgy_top=(ev.clientY+10);
+                                var current_right=tgt_left+ colorSelector.offsetWidth;
+                                var current_bottom=tgy_top+colorSelector.offsetHeight;
+                                if(current_right>document.documentElement.clientWidth){
+                                    tgt_left=document.documentElement.clientWidth-colorSelector.offsetWidth;
+                                }
+                                if(current_bottom>document.documentElement.clientHeight){
+                                    tgy_top=document.documentElement.clientHeight-colorSelector.offsetHeight;
+                                }
+                                console.log("Color Selector Position: ", tgt_left, tgy_top);
+                                colorSelector.style.left=tgt_left+"px";
+                                colorSelector.style.top=tgy_top+"px";
                             });
                             td.appendChild(span);
                             lineRow.appendChild(td);
@@ -388,7 +402,7 @@
                     colorInput.type="color";
                     colorInput.value=color_presets[i];
                     colorInput.id="cp"+i;
-                    colorInput.addEventListener("change",function(ev){
+                    colorInput.addEventListener("blur",function(ev){
                         applyChangeColorPreset(parseInt(this.id.replace("cp","")), this.value);
                     });
                     colorDiv.appendChild(colorInput);
@@ -428,6 +442,8 @@
                     color_presets.push(value);
                 }
                 updateColorPresets();
+                showLineLists();
+                drawCheckerboard();
             }
             function drawCheckerboard(){
                 var canvas = document.getElementById('canvas');
@@ -584,7 +600,7 @@
                 return config;
             }
             function loadLocalStorage(){
-                savedConfigs = JSON.parse(localStorage.getItem("checker_pattern_configs") || "[]");
+                savedConfigs = JSON.parse(localStorage.getItem("checker_pattern_configs") || "{}");
                 var saveList = document.getElementById("save_list");
                 saveList.innerHTML = '';
                 savedItemNames = Object.keys(savedConfigs);
@@ -645,8 +661,12 @@
                 loadLocalStorage();
             }
             function saveCurrentSettingsAs(save_name){
+                if(savedConfigs.length==0){
+                    savedConfigs = {};
+                }
                 savedConfigs[save_name] = makeCurrentConfigJSON(save_name);
                 localStorage.setItem("checker_pattern_configs", JSON.stringify(savedConfigs));
+                //document.getElementById("save_debug").innerHTML = "設定を保存しました: " + save_name +"<br />" + JSON.stringify(savedConfigs);
                 loadLocalStorage();
             }
             function saveCurrentSettingsBtnClicked(){
@@ -654,6 +674,13 @@
                 var saveName = saveNameInput.value.trim();
                 saveCurrentSettingsAs(saveName);
                 saveNameInput.value = "";
+            }
+            function generateLink(){
+                var config = makeCurrentConfigJSON("current");
+                var jsonString = JSON.stringify(config);
+                var encodedString = encodeURIComponent(jsonString);
+                var link="https://mchhd.github.io/jstools/checker_pattern.html?config=" + encodedString;
+                navigator.clipboard.writeText(link);
             }
             document.addEventListener("DOMContentLoaded", function(ev){
                 updateColorPresets();
@@ -663,6 +690,16 @@
                 document.getElementById("container").addEventListener("click", function(ev){
                     if(!ev.target.closest("#color_selector") && !ev.target.closest(".linecolor_cell")){
                         closeDialogs();
+                    }
+                });
+                document.getElementById("settings_header").addEventListener("click", function(ev){
+                    var settingsContainer = document.getElementById("settings_container");
+                    if(settingsContainer.style.display === "none"){
+                        settingsContainer.style.display = "block";
+                        this.innerHTML = "▼ 設定";
+                    } else {
+                        settingsContainer.style.display = "none";
+                        this.innerHTML = "▲ 設定";
                     }
                 });
             });
@@ -677,69 +714,71 @@
 
             <div id="settings">
                 <div id="settings_header">
-                    設定
+                    ▼ 設定
                 </div>
-                <div id="controls">
-                    <button>再表示</button>
-                    <select onchange="display_scale=parseFloat(this.value); drawCheckerboard();">
-                        <option value="0.1">10%</option>
-                        <option value="0.25">25%</option>
-                        <option value="0.5">50%</option>
-                        <option value="0.75">75%</option>
-                        <option value="1" selected>100%</option>
-                        <option value="2">200%</option>
-                        <option value="4">400%</option>
-                        <option value="8">800%</option>
-                        <option value="16">1600%</option>
-                    </select>
-                </div>
-                <div class="tab_container">
-                    <ul>
-                        <li class="tab_header active" onclick="switch_tab(0)">色</li>
-                        <li class="tab_header" onclick="switch_tab(1)">横ライン</li>
-                        <li class="tab_header" onclick="switch_tab(2)">縦ライン</li>
-                        <li class="tab_header" onclick="switch_tab(3)">保存</li>
-                    </ul>
-                    <div class="tab_content active">
+                <div id="settings_container">
+                    <div id="controls">
+                        <button onclick="showLineLists();drawCheckerboard();">再表示</button>
+                        <select onchange="display_scale=parseFloat(this.value); drawCheckerboard();">
+                            <option value="0.1">10%</option>
+                            <option value="0.25">25%</option>
+                            <option value="0.5">50%</option>
+                            <option value="0.75">75%</option>
+                            <option value="1" selected>100%</option>
+                            <option value="2">200%</option>
+                            <option value="4">400%</option>
+                            <option value="8">800%</option>
+                            <option value="16">1600%</option>
+                        </select>
+                    </div>
+                    <div class="tab_container">
+                        <ul>
+                            <li class="tab_header active" onclick="switch_tab(0)">色</li>
+                            <li class="tab_header" onclick="switch_tab(1)">横ライン</li>
+                            <li class="tab_header" onclick="switch_tab(2)">縦ライン</li>
+                            <li class="tab_header" onclick="switch_tab(3)">保存</li>
+                        </ul>
+                        <div class="tab_content active">
                         <fieldset>
                             <div id="color_list">
                             </div>
                         </fieldset>
+                        </div>
+                        <div class="tab_content">
+                            <fieldset>
+                                <div id="horizontal_lines" class="line_list">
+                                </div>
+                                <div id="hline_controls">
+                                    <button onclick="moveLine('horizontal',-1)"">▲</button>
+                                    <button onclick="moveLine('horizontal',+1)">▼</button>
+                                    <button onclick="addNewLine('horizontal')">新しいラインを追加</button>
+                                    <button onclick="addNewSubLine('horizontal')">新しいサブラインを追加</button>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="tab_content">
+                            <fieldset>
+                                <div id="vertical_lines" class="line_list">
+                                </div>
+                                <div id="vline_controls">
+                                    <button onclick="moveLine('vertical',-1)"">▲</button>
+                                    <button onclick="moveLine('vertical',1)">▼</button>
+                                    <button onclick="addNewLine('vertical')">新しいラインを追加</button>
+                                    <button onclick="addNewSubLine('vertical')">新しいサブラインを追加</button>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="tab_content">
+                            <fieldset>
+                                <div id="save_list"></div>
+                                <div id="save_controls">
+                                    <input type="text" id="save_name" placeholder="保存名" />
+                                    <button id="save_button" onclick="saveCurrentSettingsBtnClicked()">保存</button>
+                                    <div id="save_debug"></div>
+                                </div>
+                            </fieldset>
+                        </div>
                     </div>
-                    <div class="tab_content">
-                        <fieldset>
-                            <div id="horizontal_lines" class="line_list">
-                            </div>
-                            <div id="hline_controls">
-                                <button onclick="moveLine('horizontal',-1)"">▲</button>
-                                <button onclick="moveLine('horizontal',+1)">▼</button>
-                                <button onclick="addNewLine('horizontal')">新しいラインを追加</button>
-                                <button onclick="addNewSubLine('horizontal')">新しいサブラインを追加</button>
-                            </div>
-                        </fieldset>
-                    </div>
-                    <div class="tab_content">
-                        <fieldset>
-                            <div id="vertical_lines" class="line_list">
-                            </div>
-                            <div id="vline_controls">
-                                <button onclick="moveLine('vertical',-1)"">▲</button>
-                                <button onclick="moveLine('vertical',1)">▼</button>
-                                <button onclick="addNewLine('vertical')">新しいラインを追加</button>
-                                <button onclick="addNewSubLine('vertical')">新しいサブラインを追加</button>
-                            </div>
-                        </fieldset>
-                    </div>
-                    <div class="tab_content">
-                        <fieldset>
-                            <div id="save_list"></div>
-                            <div id="save_controls">
-                                <input type="text" id="save_name" placeholder="保存名" />
-                                <button id="save_button" onclick="saveCurrentSettingsBtnClicked()">現在の設定を保存</button>
-                            </div>
-                        </fieldset>
-                    </div>
-                      
                 </div>
             </div>
             <div id="color_selector" class="popup_dialog" onblur="closeDialogs()">
