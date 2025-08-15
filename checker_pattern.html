@@ -86,13 +86,26 @@
                 background:#eee;
             }
             div#color_list input{
+                border: none;
+                box-shadow: none;
                 width:20px;
-                height:20px;
-                border: 1px solid #333;
+                height:25px;
                 padding:0px;
+                position: relative;
+                top:2px;
+                border-radius:0px;
                 margin:0px;
                 margin-right: 10px;
                 background: none;
+                cursor: pointer;
+            }
+            @supports (-webkit-touch-callout: none) {
+                div#color_list input{
+                    border:1px solid #333;
+                    top:0px;
+                    height:20px;
+                    border-radius: 10px;
+                }
             }
             div.line_list{
                 margin: 5px 0px;
@@ -679,10 +692,29 @@
                 var config = makeCurrentConfigJSON("current");
                 var jsonString = JSON.stringify(config);
                 var encodedString = encodeURIComponent(jsonString);
-                var link="https://mchhd.github.io/jstools/checker_pattern.html?config=" + encodedString;
+                //var link = "http://localhost/jstools/checker_pattern.html?config=" + encodedString;
+                var link="https://hmachiya.github.io/jstools/checker_pattern.html?config=" + encodedString;
                 navigator.clipboard.writeText(link);
             }
+            function debug(){
+                document.getElementById("cp0").click();
+            }
+
             document.addEventListener("DOMContentLoaded", function(ev){
+                //get config from URL
+                var urlParams = new URLSearchParams(window.location.search);
+                if(urlParams.has("config")){
+                    var configString = urlParams.get("config");
+                    try {
+                        var config = JSON.parse(decodeURIComponent(configString));
+                        color_presets = config.color_presets || color_presets;
+                        lines = config.lines || lines;
+                        nrepeat = config.nrepeat || nrepeat;
+                        display_scale = config.display_scale || display_scale;
+                    } catch (e) {
+                        console.error("Error parsing config from URL:", e);
+                    }
+                }
                 updateColorPresets();
                 showLineLists();
                 drawCheckerboard();
@@ -751,8 +783,8 @@
                                 <div id="hline_controls">
                                     <button onclick="moveLine('horizontal',-1)"">▲</button>
                                     <button onclick="moveLine('horizontal',+1)">▼</button>
-                                    <button onclick="addNewLine('horizontal')">新しいラインを追加</button>
-                                    <button onclick="addNewSubLine('horizontal')">新しいサブラインを追加</button>
+                                    <button onclick="addNewLine('horizontal')">ライン追加</button>
+                                    <button onclick="addNewSubLine('horizontal')">サブライン追加</button>
                                 </div>
                             </fieldset>
                         </div>
@@ -763,8 +795,8 @@
                                 <div id="vline_controls">
                                     <button onclick="moveLine('vertical',-1)"">▲</button>
                                     <button onclick="moveLine('vertical',1)">▼</button>
-                                    <button onclick="addNewLine('vertical')">新しいラインを追加</button>
-                                    <button onclick="addNewSubLine('vertical')">新しいサブラインを追加</button>
+                                    <button onclick="addNewLine('vertical')">ライン追加</button>
+                                    <button onclick="addNewSubLine('vertical')">サブライン追加</button>
                                 </div>
                             </fieldset>
                         </div>
@@ -774,10 +806,12 @@
                                 <div id="save_controls">
                                     <input type="text" id="save_name" placeholder="保存名" />
                                     <button id="save_button" onclick="saveCurrentSettingsBtnClicked()">保存</button>
+                                    <button onclick="generateLink()">共有リンク作成</button>
                                     <div id="save_debug"></div>
                                 </div>
                             </fieldset>
                         </div>
+
                     </div>
                 </div>
             </div>
